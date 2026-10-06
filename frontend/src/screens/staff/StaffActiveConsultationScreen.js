@@ -9,7 +9,7 @@ import {
   RefreshControl
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import staffApi from '../../../services/staffApi';
+import staffApi from '../../services/staffApi';
 
 const StaffActiveConsultationScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);

@@ -5,10 +5,11 @@ import {
   StyleSheet, 
   TouchableOpacity, 
   ActivityIndicator,
-  Alert
+  Alert,
+  Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import staffApi from '../../../services/staffApi';
+import staffApi from '../../services/staffApi';
 
 const StaffCallNextPatientScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -48,12 +49,23 @@ const StaffCallNextPatientScreen = ({ navigation }) => {
       setSubmitting(true);
       const response = await staffApi.callPatient(nextPatient._id);
       if (response.success) {
-        // Navigate to Active Consultation Screen
-        navigation.replace('StaffActiveConsultation');
+        setSubmitting(false);
+        if (Platform.OS === 'web') {
+          window.alert("Patient has been successfully called for consultation.");
+          navigation.replace('StaffActiveConsultation');
+        } else {
+          Alert.alert(
+            "Update Successful", 
+            "Patient has been successfully called for consultation.",
+            [
+              { text: "OK", onPress: () => navigation.replace('StaffActiveConsultation') }
+            ]
+          );
+        }
       }
     } catch (err) {
-      Alert.alert("Error", "Failed to call patient. Please try again.");
       setSubmitting(false);
+      Alert.alert("Error", "Failed to call patient. Please try again.");
     }
   };
 

@@ -8,7 +8,7 @@ import {
   Alert
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import staffApi from '../../../services/staffApi';
+import staffApi from '../../services/staffApi';
 
 const StaffPriorityManagementScreen = ({ route, navigation }) => {
   const { queueId } = route.params;

@@ -6,10 +6,11 @@ import {
   TouchableOpacity, 
   ActivityIndicator,
   ScrollView,
-  Animated
+  Animated,
+  Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import staffApi from '../../../services/staffApi';
+import staffApi from '../../services/staffApi';
 
 const StaffPatientDetailsScreen = ({ route, navigation }) => {
   const { queueId } = route.params;
@@ -18,6 +19,8 @@ const StaffPatientDetailsScreen = ({ route, navigation }) => {
   const [patientData, setPatientData] = useState(null);
   
   const fadeAnim = useState(new Animated.Value(0))[0];
+
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchPatientDetails = async () => {
     try {
@@ -36,6 +39,31 @@ const StaffPatientDetailsScreen = ({ route, navigation }) => {
       setError('Unable to load patient details. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCallPatient = async () => {
+    try {
+      setSubmitting(true);
+      const response = await staffApi.callPatient(queueId);
+      if (response.success) {
+        setSubmitting(false);
+        if (Platform.OS === 'web') {
+          window.alert("Patient has been successfully called for consultation.");
+          navigation.replace('StaffActiveConsultation');
+        } else {
+          Alert.alert(
+            "Update Successful", 
+            "Patient has been successfully called for consultation.",
+            [
+              { text: "OK", onPress: () => navigation.replace('StaffActiveConsultation') }
+            ]
+          );
+        }
+      }
+    } catch (err) {
+      setSubmitting(false);
+      Alert.alert("Error", "Failed to call patient. Please try again.");
     }
   };
 
@@ -67,6 +95,7 @@ const StaffPatientDetailsScreen = ({ route, navigation }) => {
 
   const { queue, appointment } = patientData;
   const isArrived = queue.arrivalStatus === 'Arrived';
+  const isWaiting = queue.status === 'waiting';
   
   return (
     <ScrollView style={styles.container}>
@@ -130,6 +159,20 @@ const StaffPatientDetailsScreen = ({ route, navigation }) => {
         <View style={styles.actionsContainer}>
           <Text style={styles.sectionTitle}>Queue Actions</Text>
           
+          {isWaiting && (
+            <TouchableOpacity 
+              style={[styles.actionButton, styles.callButton, submitting && { opacity: 0.7 }]}
+              onPress={handleCallPatient}
+              disabled={submitting}
+            >
+              {submitting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.actionButtonText}>Call Patient Now</Text>
+              )}
+            </TouchableOpacity>
+          )}
+
           {!isArrived && (
             <TouchableOpacity 
               style={[styles.actionButton, styles.primaryButton]}
@@ -220,7 +263,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  primaryButton: { backgroundColor: '#27ae60' },
+  primaryButton: { backgroundColor: '#2980b9' },
+  callButton: { backgroundColor: '#27ae60' },
   secondaryButton: { backgroundColor: '#e67e22' },
   outlineButton: { backgroundColor: 'transparent', borderWidth: 2, borderColor: '#7f8c8d', shadowOpacity: 0, elevation: 0 },
   actionButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },

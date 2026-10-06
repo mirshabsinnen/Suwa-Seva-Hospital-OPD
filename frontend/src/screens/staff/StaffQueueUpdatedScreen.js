@@ -10,7 +10,7 @@ const StaffQueueUpdatedScreen = ({ route, navigation }) => {
         <Text style={styles.checkIcon}>✓</Text>
       </View>
       
-      <Text style={styles.successTitle}>Queue Updated Successfully!</Text>
+      <Text style={styles.successTitle}>Update Successful!</Text>
       
       <View style={styles.summaryCard}>
         <Text style={styles.summaryLabel}>Token: <Text style={styles.summaryValue}>{queue.tokenNumber}</Text></Text>

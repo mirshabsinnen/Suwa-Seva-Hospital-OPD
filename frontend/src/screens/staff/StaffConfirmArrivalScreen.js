@@ -8,7 +8,7 @@ import {
   Alert
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import staffApi from '../../../services/staffApi';
+import staffApi from '../../services/staffApi';
 
 const StaffConfirmArrivalScreen = ({ route, navigation }) => {
   const { queueId } = route.params;
@@ -43,7 +43,7 @@ const StaffConfirmArrivalScreen = ({ route, navigation }) => {
       const response = await staffApi.confirmArrival(queueId);
       if (response.success) {
         Alert.alert(
-          "Success",
+          "Update Successful",
           "Patient arrival confirmed successfully!",
           [
             { text: "OK", onPress: () => navigation.navigate('StaffTodayQueue') }

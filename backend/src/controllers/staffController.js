@@ -7,19 +7,27 @@ const StaffHandover = require('../models/StaffHandover');
 // ==========================================
 exports.getDashboardStats = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const totalPatients = await Queue.countDocuments();
+    const waitingPatients = await Queue.countDocuments({ status: 'waiting' });
+    const completedPatients = await Queue.countDocuments({ status: 'completed' });
+    const priorityPatients = await Queue.countDocuments({ priority: { $in: ['Priority', 'Emergency'] } });
 
-    const totalPatients = await Queue.countDocuments({ createdAt: { $gte: today } });
-    const waitingPatients = await Queue.countDocuments({ status: 'waiting', arrivalStatus: 'Arrived', createdAt: { $gte: today } });
-    const completedPatients = await Queue.countDocuments({ status: 'completed', createdAt: { $gte: today } });
-    const priorityPatients = await Queue.countDocuments({ priority: { $in: ['Priority', 'Emergency'] }, createdAt: { $gte: today } });
-
-    const currentServing = await Queue.findOne({ status: 'called', createdAt: { $gte: today } }).sort({ calledTime: -1 });
+    const currentServing = await Queue.findOne({ status: 'called' }).sort({ calledTime: -1 });
     
-    // Find next token: arrived, waiting, sorted by priority then time (simplistic sort for now)
-    const nextPatient = await Queue.findOne({ status: 'waiting', arrivalStatus: 'Arrived', createdAt: { $gte: today } })
-                                   .sort({ queuePosition: 1 });
+    // Find next patient using priority weighting (Emergency > Priority > Normal) and arrival status
+    const waitingList = await Queue.find({ status: 'waiting' });
+    const getPriorityWeight = (p) => p === 'Emergency' ? 3 : p === 'Priority' ? 2 : 1;
+    waitingList.sort((a, b) => {
+      const arrA = a.arrivalStatus === 'Arrived' ? 1 : 0;
+      const arrB = b.arrivalStatus === 'Arrived' ? 1 : 0;
+      if (arrA !== arrB) return arrB - arrA;
+      const wA = getPriorityWeight(a.priority);
+      const wB = getPriorityWeight(b.priority);
+      if (wA !== wB) return wB - wA;
+      return (a.queuePosition || 999) - (b.queuePosition || 999);
+    });
+
+    const nextPatient = waitingList.length > 0 ? waitingList[0] : null;
 
     res.status(200).json({
       success: true,
@@ -42,10 +50,7 @@ exports.getDashboardStats = async (req, res) => {
 // ==========================================
 exports.getTodayQueue = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const queue = await Queue.find({ createdAt: { $gte: today } })
+    const queue = await Queue.find()
                              .populate('patientId', 'fullName')
                              .sort({ queuePosition: 1 });
     
@@ -97,8 +102,6 @@ exports.updatePriority = async (req, res) => {
 
     queue.priority = priority;
     
-    // In a real system, you would recalculate the queue positions of all patients.
-    // For this prototype, we will just move them to position 1 if they are Priority/Emergency.
     if (priority === 'Priority' || priority === 'Emergency') {
         queue.queuePosition = 1; 
     }
@@ -113,16 +116,32 @@ exports.updatePriority = async (req, res) => {
 
 exports.getNextPatient = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const nextPatient = await Queue.findOne({ status: 'waiting', arrivalStatus: 'Arrived', createdAt: { $gte: today } })
-                                   .sort({ queuePosition: 1 })
-                                   .populate('patientId', 'fullName');
+    const waitingPatients = await Queue.find({ status: 'waiting' })
+                                     .populate('patientId', 'fullName');
     
-    if (!nextPatient) {
+    if (!waitingPatients || waitingPatients.length === 0) {
       return res.status(404).json({ success: false, message: 'No waiting patients found' });
     }
+
+    const getPriorityWeight = (priority) => {
+      if (priority === 'Emergency') return 3;
+      if (priority === 'Priority') return 2;
+      return 1;
+    };
+
+    waitingPatients.sort((a, b) => {
+      const arrivedA = a.arrivalStatus === 'Arrived' ? 1 : 0;
+      const arrivedB = b.arrivalStatus === 'Arrived' ? 1 : 0;
+      if (arrivedA !== arrivedB) return arrivedB - arrivedA;
+
+      const weightA = getPriorityWeight(a.priority);
+      const weightB = getPriorityWeight(b.priority);
+      if (weightA !== weightB) return weightB - weightA;
+
+      return (a.queuePosition || 999) - (b.queuePosition || 999);
+    });
+
+    const nextPatient = waitingPatients[0];
 
     res.status(200).json({ success: true, data: nextPatient });
   } catch (error) {
@@ -137,9 +156,27 @@ exports.callPatient = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Queue record not found' });
     }
 
+    // 1. Mark currently called patient as completed
+    await Queue.updateMany(
+      { status: 'called' },
+      { $set: { status: 'completed', completedTime: Date.now() } }
+    );
+
+    // 2. Mark this patient as called and arrived
     queue.status = 'called';
+    queue.arrivalStatus = 'Arrived';
+    if (!queue.arrivalTime) {
+      queue.arrivalTime = Date.now();
+    }
     queue.calledTime = Date.now();
+    queue.currentServingToken = queue.tokenNumber;
     await queue.save();
+
+    // 3. Update currentServingToken across all active queue entries
+    await Queue.updateMany(
+      { status: { $ne: 'completed' } },
+      { $set: { currentServingToken: queue.tokenNumber } }
+    );
 
     res.status(200).json({ success: true, data: queue, message: 'Patient called successfully' });
   } catch (error) {
@@ -149,10 +186,7 @@ exports.callPatient = async (req, res) => {
 
 exports.getActivePatient = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const activePatient = await Queue.findOne({ status: 'called', createdAt: { $gte: today } })
+    const activePatient = await Queue.findOne({ status: 'called' })
                                      .sort({ calledTime: -1 })
                                      .populate('patientId', 'fullName');
     

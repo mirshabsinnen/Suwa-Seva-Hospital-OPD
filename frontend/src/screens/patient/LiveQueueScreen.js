@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import React, { useState, useCallback, useRef } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ActivityIndicator, Alert, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
 import { useFocusEffect } from '@react-navigation/native';
@@ -9,7 +9,8 @@ const LiveQueueScreen = ({ navigation }) => {
   const [queueData, setQueueData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // For demonstration, we just fetch the most recent active appointment's queue
+  const alertedPriority = useRef(null);
+
   const fetchActiveQueue = async () => {
     try {
       const res = await api.get('/appointments');
@@ -18,7 +19,23 @@ const LiveQueueScreen = ({ navigation }) => {
       if (activeAppt) {
         setAppointments([activeAppt]);
         const queueRes = await api.get(`/queue/${activeAppt._id}`);
-        setQueueData(queueRes.data);
+        const newQueueData = queueRes.data;
+        
+        if (newQueueData.priority !== 'Normal' && alertedPriority.current !== newQueueData.priority) {
+          alertedPriority.current = newQueueData.priority;
+          setTimeout(() => {
+            if (Platform.OS === 'web') {
+              window.alert(`QUEUE ESCALATED: Your queue status has been escalated to ${newQueueData.priority.toUpperCase()}. Please approach the OPD immediately.`);
+            } else {
+              Alert.alert(
+                "Queue Status Updated",
+                `Your queue status has been escalated to ${newQueueData.priority.toUpperCase()}. Please approach the OPD immediately.`
+              );
+            }
+          }, 500);
+        }
+        
+        setQueueData(newQueueData);
       } else {
         setQueueData(null);
       }
@@ -32,8 +49,8 @@ const LiveQueueScreen = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       fetchActiveQueue();
-      // Setup polling every 20 seconds
-      const interval = setInterval(fetchActiveQueue, 20000);
+      // Setup polling every 5 seconds for faster real-time updates
+      const interval = setInterval(fetchActiveQueue, 5000);
       return () => clearInterval(interval);
     }, [])
   );
@@ -69,6 +86,15 @@ const LiveQueueScreen = ({ navigation }) => {
             <Text style={styles.opdName}>{appointments[0]?.opdId?.name} • Room 14</Text>
           </View>
           
+          {queueData.priority && queueData.priority !== 'Normal' && (
+            <View style={[styles.priorityBanner, queueData.priority === 'Emergency' ? styles.emergencyBg : styles.priorityBg]}>
+              <Ionicons name="alert-circle" size={20} color={queueData.priority === 'Emergency' ? '#fff' : '#000'} />
+              <Text style={[styles.priorityText, queueData.priority === 'Emergency' ? styles.emergencyText : styles.priorityNormalText]}>
+                QUEUE STATUS: {queueData.priority.toUpperCase()}
+              </Text>
+            </View>
+          )}
+
           <View style={styles.tokenDisplayRow}>
             <View style={styles.tokenBox}>
               <Text style={styles.tokenLabel}>YOUR TOKEN</Text>
@@ -120,6 +146,13 @@ const styles = StyleSheet.create({
   hospitalInfo: { alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 15 },
   hospitalName: { fontSize: 18, fontWeight: 'bold', color: '#005A71', textAlign: 'center' },
   opdName: { fontSize: 14, color: '#666', marginTop: 4 },
+  
+  priorityBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10, borderRadius: 8, marginBottom: 15 },
+  emergencyBg: { backgroundColor: '#dc3545' },
+  priorityBg: { backgroundColor: '#ffc107' },
+  priorityText: { marginLeft: 8, fontWeight: 'bold', letterSpacing: 1 },
+  emergencyText: { color: '#fff' },
+  priorityNormalText: { color: '#000' },
   
   tokenDisplayRow: { flexDirection: 'row', justifyContent: 'space-between' },
   tokenBox: { flex: 1, alignItems: 'center', borderRightWidth: 1, borderRightColor: '#eee' },

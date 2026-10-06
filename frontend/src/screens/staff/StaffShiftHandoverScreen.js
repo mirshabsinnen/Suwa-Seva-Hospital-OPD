@@ -9,7 +9,7 @@ import {
   ScrollView,
   Alert 
 } from 'react-native';
-import staffApi from '../../../services/staffApi';
+import staffApi from '../../services/staffApi';
 
 const StaffShiftHandoverScreen = ({ navigation }) => {
   const [shift, setShift] = useState('Morning');
@@ -41,7 +41,7 @@ const StaffShiftHandoverScreen = ({ navigation }) => {
       const response = await staffApi.createHandover(payload);
       if (response.success) {
         Alert.alert(
-          'Handover Successful', 
+          'Update Successful', 
           'Shift handover notes have been saved.', 
           [
             { text: 'Back to Dashboard', onPress: () => navigation.navigate('StaffDashboard') }
