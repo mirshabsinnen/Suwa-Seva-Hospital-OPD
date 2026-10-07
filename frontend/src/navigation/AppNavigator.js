@@ -9,7 +9,7 @@ import MainTabNavigator from './MainTabNavigator';
 
 // Role-specific dashboards
 import DoctorDashboardScreen from '../screens/doctor/DoctorDashboardScreen';
-import NurseDashboardScreen from '../screens/nurse/NurseDashboardScreen';
+import StaffNavigator from './StaffNavigator';
 import HIODashboardScreen from '../screens/hio/HIODashboardScreen';
 
 // Patient appointment booking flow screens
@@ -38,13 +38,7 @@ const DoctorNavigator = () => (
   </Stack.Navigator>
 );
 
-// ─── Nurse Stack ──────────────────────────────────────────────────────────────
-const NurseNavigator = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="NurseDashboard" component={NurseDashboardScreen} />
-  </Stack.Navigator>
-);
-
+// ─── Nurse Stack (Handled by StaffNavigator) ──────────────────────────────────────────────────────────────
 // ─── HIO Stack ────────────────────────────────────────────────────────────────
 const HIONavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -56,7 +50,7 @@ const HIONavigator = () => (
 const getNavigatorForRole = (role) => {
   switch (role) {
     case 'doctor':                   return <DoctorNavigator />;
-    case 'nurse':                    return <NurseNavigator />;
+    case 'nurse':                    return <StaffNavigator />;
     case 'health_information_officer': return <HIONavigator />;
     case 'patient':
     default:                         return <PatientNavigator />;
