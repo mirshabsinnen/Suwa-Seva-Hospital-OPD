@@ -10,7 +10,7 @@ import MainTabNavigator from './MainTabNavigator';
 // Role-specific dashboards
 import DoctorDashboardScreen from '../screens/doctor/DoctorDashboardScreen';
 import StaffNavigator from './StaffNavigator';
-import HIODashboardScreen from '../screens/hio/HIODashboardScreen';
+import HIONavigator from './HIONavigator';
 
 // Patient appointment booking flow screens
 import HospitalOPDSelectionScreen from '../screens/patient/HospitalOPDSelectionScreen';
@@ -40,11 +40,6 @@ const DoctorNavigator = () => (
 
 // ─── Nurse Stack (Handled by StaffNavigator) ──────────────────────────────────────────────────────────────
 // ─── HIO Stack ────────────────────────────────────────────────────────────────
-const HIONavigator = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="HIODashboard" component={HIODashboardScreen} />
-  </Stack.Navigator>
-);
 
 // ─── Role-based navigator selector ───────────────────────────────────────────
 const getNavigatorForRole = (role) => {
