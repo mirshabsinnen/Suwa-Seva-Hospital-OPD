@@ -89,7 +89,7 @@ const LoginScreen = ({ navigation }) => {
             <Text style={styles.cardSub}>Sign in to continue</Text>
 
             {/* Email */}
-            <View style={[styles.inputGroup, emailFocused && styles.inputGroupFocused]}>
+            <View collapsable={false} style={[styles.inputGroup, emailFocused && styles.inputGroupFocused]}>
               <Ionicons name="mail-outline" size={18} color={emailFocused ? THEME : '#95a5a6'} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
@@ -105,7 +105,7 @@ const LoginScreen = ({ navigation }) => {
             </View>
 
             {/* Password */}
-            <View style={[styles.inputGroup, passFocused && styles.inputGroupFocused]}>
+            <View collapsable={false} style={[styles.inputGroup, passFocused && styles.inputGroupFocused]}>
               <Ionicons name="lock-closed-outline" size={18} color={passFocused ? THEME : '#95a5a6'} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
