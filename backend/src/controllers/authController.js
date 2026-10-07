@@ -77,3 +77,32 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: error.message || 'Server error' });
   }
 };
+
+// @desc    Update user password
+// @route   PATCH /api/auth/password
+// @access  Private
+exports.updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    // Find the user and explicitly select the password
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Verify current password
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Incorrect current password' });
+    }
+
+    // Update password (pre-save hook in User model will hash it)
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+};

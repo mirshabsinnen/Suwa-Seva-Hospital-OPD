@@ -1,31 +1,33 @@
 import React, { useState, useCallback } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
-  TouchableOpacity, 
-  TextInput,
-  ActivityIndicator,
-  RefreshControl,
-  LayoutAnimation,
-  Platform,
-  UIManager
+import {
+  View, Text, StyleSheet, FlatList, TouchableOpacity,
+  TextInput, ActivityIndicator, RefreshControl, SafeAreaView
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
 
-// Enable LayoutAnimation for Android
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+const THEME = '#0a3d62';
+
+const statusConfig = {
+  waiting: { label: 'WAITING', color: '#e67e22', bg: '#fef6ee' },
+  called:  { label: 'CALLED',  color: '#2980b9', bg: '#eaf4fb' },
+  completed: { label: 'DONE', color: '#27ae60', bg: '#edfbf0' },
+  cancelled: { label: 'CANCELLED', color: '#95a5a6', bg: '#f5f5f5' },
+};
+
+const priorityConfig = {
+  Emergency: { color: '#e74c3c', icon: 'alert-circle' },
+  Priority:  { color: '#f39c12', icon: 'flag' },
+  Normal:    { color: '#27ae60', icon: null },
+};
 
 const StaffTodayQueueScreen = ({ navigation }) => {
-  const [loading, setLoading] = useState(true);
   const [queueData, setQueueData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
 
   const fetchQueue = async () => {
@@ -34,108 +36,66 @@ const StaffTodayQueueScreen = ({ navigation }) => {
       setError(null);
       const response = await staffApi.getTodayQueue();
       if (response.success) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setQueueData(response.data);
-        applyFilters(response.data, searchQuery, activeFilter);
+        applyFilters(response.data, search, activeFilter);
       }
-    } catch (err) {
-      setError('Unable to load the queue. Please try again.');
+    } catch {
+      setError('Unable to load queue. Pull down to retry.');
     } finally {
       setLoading(false);
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchQueue();
-    }, [])
-  );
+  useFocusEffect(useCallback(() => { fetchQueue(); }, []));
 
-  const applyFilters = (data, search, filter) => {
-    let filtered = [...data];
-
-    // Filter by status
-    if (filter !== 'All') {
-      filtered = filtered.filter(item => {
-        if (filter === 'Waiting') return item.status === 'waiting' && item.arrivalStatus === 'Arrived';
-        if (filter === 'Not Arrived') return item.arrivalStatus === 'Not Arrived';
-        if (filter === 'Priority') return item.priority === 'Priority' || item.priority === 'Emergency';
-        return item.status.toLowerCase() === filter.toLowerCase();
-      });
-    }
-
-    // Filter by search text (Token or Name)
-    if (search) {
-      const lowerSearch = search.toLowerCase();
-      filtered = filtered.filter(item => 
-        item.tokenNumber.toLowerCase().includes(lowerSearch) || 
-        (item.patientId?.fullName && item.patientId.fullName.toLowerCase().includes(lowerSearch))
+  const applyFilters = (data, query, filter) => {
+    let result = [...data];
+    if (filter === 'Waiting')   result = result.filter(i => i.status === 'waiting');
+    else if (filter === 'Called') result = result.filter(i => i.status === 'called');
+    else if (filter === 'Done')   result = result.filter(i => i.status === 'completed');
+    else if (filter === 'Priority') result = result.filter(i => i.priority === 'Priority' || i.priority === 'Emergency');
+    if (query) {
+      const q = query.toLowerCase();
+      result = result.filter(i =>
+        i.tokenNumber.toLowerCase().includes(q) ||
+        (i.patientId?.fullName || '').toLowerCase().includes(q)
       );
     }
-
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setFilteredData(filtered);
+    setFilteredData(result);
   };
 
-  const handleSearch = (text) => {
-    setSearchQuery(text);
-    applyFilters(queueData, text, activeFilter);
-  };
+  const onSearch = (text) => { setSearch(text); applyFilters(queueData, text, activeFilter); };
+  const onFilter = (f) => { setActiveFilter(f); applyFilters(queueData, search, f); };
 
-  const handleFilterSelect = (filter) => {
-    setActiveFilter(filter);
-    applyFilters(queueData, searchQuery, filter);
-  };
-
-  const renderFilterChip = (label) => {
-    const isActive = activeFilter === label;
-    return (
-      <TouchableOpacity 
-        style={[styles.filterChip, isActive && styles.filterChipActive]}
-        onPress={() => handleFilterSelect(label)}
-      >
-        <Text style={[styles.filterChipText, isActive && styles.filterChipTextActive]}>
-          {label}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-
-  const getStatusColor = (status, arrivalStatus) => {
-    if (status === 'completed') return '#27ae60';
-    if (status === 'called' || status === 'serving') return '#2980b9';
-    if (arrivalStatus === 'Arrived') return '#f39c12';
-    return '#95a5a6'; // Not Arrived
-  };
-
-  const renderPatientCard = ({ item }) => {
-    const isPriority = item.priority === 'Priority' || item.priority === 'Emergency';
-    const statusColor = getStatusColor(item.status, item.arrivalStatus);
+  const renderCard = ({ item }) => {
+    const stat = statusConfig[item.status] || statusConfig.waiting;
+    const prio = priorityConfig[item.priority] || priorityConfig.Normal;
+    const isHighPriority = item.priority === 'Emergency' || item.priority === 'Priority';
 
     return (
-      <TouchableOpacity 
-        style={[styles.card, isPriority && styles.priorityCard]}
+      <TouchableOpacity
+        style={[styles.card, isHighPriority && styles.cardPriority]}
         onPress={() => navigation.navigate('StaffPatientDetails', { queueId: item._id })}
+        activeOpacity={0.88}
       >
-        <View style={styles.cardHeader}>
-          <Text style={styles.tokenText}>{item.tokenNumber}</Text>
-          <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
-            <Text style={styles.statusBadgeText}>
-              {item.status === 'waiting' && item.arrivalStatus === 'Not Arrived' ? 'Not Arrived' : item.status.toUpperCase()}
-            </Text>
+        <View style={styles.cardLeft}>
+          <View style={[styles.tokenBadge, { backgroundColor: isHighPriority ? prio.color : THEME }]}>
+            <Text style={styles.tokenText}>{item.tokenNumber}</Text>
+          </View>
+          <View style={{ marginLeft: 14 }}>
+            <Text style={styles.patientName}>{item.patientId?.fullName || 'Unknown'}</Text>
+            <Text style={styles.positionText}>Position #{item.queuePosition}</Text>
           </View>
         </View>
-
-        <View style={styles.cardBody}>
-          <Text style={styles.patientName}>{item.patientId?.fullName || 'Unknown Patient'}</Text>
-          
-          <View style={styles.detailsRow}>
-            <Text style={styles.detailText}>Pos: {item.queuePosition}</Text>
-            {isPriority && (
-              <View style={styles.priorityBadge}>
-                <Text style={styles.priorityText}>{item.priority}</Text>
-              </View>
-            )}
+        <View style={styles.cardRight}>
+          {isHighPriority && (
+            <View style={[styles.prioBadge, { backgroundColor: prio.color + '20' }]}>
+              <Ionicons name={prio.icon} size={12} color={prio.color} />
+              <Text style={[styles.prioText, { color: prio.color }]}>{item.priority}</Text>
+            </View>
+          )}
+          <View style={[styles.statusBadge, { backgroundColor: stat.bg }]}>
+            <Text style={[styles.statusText, { color: stat.color }]}>{stat.label}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -143,119 +103,162 @@ const StaffTodayQueueScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <TextInput 
+    <SafeAreaView style={styles.safeArea}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Today's Queue</Text>
+        <Text style={styles.headerSub}>{queueData.length} patients registered</Text>
+      </View>
+
+      {/* Search */}
+      <View style={styles.searchRow}>
+        <Ionicons name="search" size={18} color="#7f8c8d" style={{ marginRight: 8 }} />
+        <TextInput
           style={styles.searchInput}
-          placeholder="Search by Token or Name..."
-          value={searchQuery}
-          onChangeText={handleSearch}
+          placeholder="Search by token or name..."
+          value={search}
+          onChangeText={onSearch}
           placeholderTextColor="#95a5a6"
         />
+        {search.length > 0 && (
+          <TouchableOpacity onPress={() => onSearch('')}>
+            <Ionicons name="close-circle" size={18} color="#95a5a6" />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Filter Chips */}
-      <View style={styles.filtersWrapper}>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={['All', 'Not Arrived', 'Waiting', 'Priority', 'Called', 'Completed']}
-          keyExtractor={(item) => item}
-          renderItem={({ item }) => renderFilterChip(item)}
-          contentContainerStyle={styles.filtersContainer}
-        />
+      <View style={styles.filtersRow}>
+        {['All', 'Waiting', 'Called', 'Done', 'Priority'].map(f => (
+          <TouchableOpacity
+            key={f}
+            style={[styles.chip, activeFilter === f && styles.chipActive]}
+            onPress={() => onFilter(f)}
+          >
+            <Text style={[styles.chipText, activeFilter === f && styles.chipTextActive]}>{f}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      {/* Content */}
+      {/* List */}
       {loading && queueData.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#0a3d62" />
-          <Text style={styles.loadingText}>Loading today's queue...</Text>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={THEME} />
         </View>
       ) : error ? (
-        <View style={styles.centerContainer}>
+        <View style={styles.center}>
+          <Ionicons name="cloud-offline-outline" size={56} color="#bdc3c7" />
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchQueue}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={fetchQueue}>
+            <Text style={styles.retryText}>Retry</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <FlatList
           data={filteredData}
-          keyExtractor={(item) => item._id.toString()}
-          renderItem={renderPatientCard}
-          contentContainerStyle={styles.listContainer}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchQueue} />}
+          keyExtractor={i => i._id}
+          renderItem={renderCard}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchQueue} tintColor={THEME} />}
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No patients found.</Text>
+            <View style={styles.center}>
+              <Ionicons name="people-outline" size={56} color="#bdc3c7" />
+              <Text style={styles.emptyText}>No patients found</Text>
             </View>
           }
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f4f6f8' },
-  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 10, color: '#555', fontSize: 16 },
-  errorText: { color: '#c0392b', fontSize: 16, marginBottom: 15, textAlign: 'center', paddingHorizontal: 20 },
-  retryButton: { backgroundColor: '#0a3d62', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
-  retryButtonText: { color: '#fff', fontWeight: 'bold' },
-  emptyContainer: { padding: 40, alignItems: 'center' },
-  emptyText: { color: '#7f8c8d', fontSize: 16, fontStyle: 'italic' },
-  
-  searchContainer: { padding: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#ecf0f1' },
-  searchInput: { 
-    backgroundColor: '#f4f6f8', 
-    borderRadius: 10, 
-    paddingHorizontal: 15, 
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#2c3e50'
+  safeArea: { flex: 1, backgroundColor: '#f0f4f8' },
+
+  header: {
+    backgroundColor: THEME,
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
-  
-  filtersWrapper: { backgroundColor: '#fff', paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#ecf0f1' },
-  filtersContainer: { paddingHorizontal: 10 },
-  filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#ecf0f1',
-    marginHorizontal: 5,
+  headerTitle: { color: '#fff', fontSize: 22, fontWeight: '800' },
+  headerSub: { color: '#a0c4e0', fontSize: 13, marginTop: 4 },
+
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginTop: -14,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    shadowColor: '#0a3d62',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  filterChipActive: { backgroundColor: '#0a3d62' },
-  filterChipText: { color: '#7f8c8d', fontWeight: '600' },
-  filterChipTextActive: { color: '#ffffff' },
-  
-  listContainer: { padding: 15, paddingBottom: 40 },
+  searchInput: { flex: 1, fontSize: 14, color: '#2c3e50' },
+
+  filtersRow: { flexDirection: 'row', paddingHorizontal: 16, marginTop: 14, marginBottom: 6 },
+  chip: {
+    paddingHorizontal: 14, paddingVertical: 7,
+    borderRadius: 20, backgroundColor: '#fff',
+    marginRight: 8, borderWidth: 1, borderColor: '#dde4ea',
+  },
+  chipActive: { backgroundColor: THEME, borderColor: THEME },
+  chipText: { fontSize: 12, color: '#7f8c8d', fontWeight: '600' },
+  chipTextActive: { color: '#fff' },
+
+  list: { padding: 16, paddingBottom: 30 },
+
   card: {
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
+    borderRadius: 16,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    shadowColor: '#0a3d62',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-    borderLeftWidth: 4,
-    borderLeftColor: '#bdc3c7',
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 3,
+    borderLeftWidth: 3,
+    borderLeftColor: 'transparent',
   },
-  priorityCard: { borderLeftColor: '#c0392b', backgroundColor: '#fdf3f2' },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  tokenText: { fontSize: 22, fontWeight: 'bold', color: '#2c3e50' },
-  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  statusBadgeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
-  cardBody: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  patientName: { fontSize: 16, color: '#34495e', fontWeight: '500', flex: 1 },
-  detailsRow: { flexDirection: 'row', alignItems: 'center' },
-  detailText: { fontSize: 14, color: '#7f8c8d', marginRight: 10 },
-  priorityBadge: { backgroundColor: '#e74c3c', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
-  priorityText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  cardPriority: { borderLeftColor: '#e74c3c', backgroundColor: '#fffbfb' },
+  cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  tokenBadge: {
+    paddingHorizontal: 10, paddingVertical: 8,
+    borderRadius: 10, minWidth: 75, alignItems: 'center',
+  },
+  tokenText: { color: '#fff', fontSize: 13, fontWeight: '800', letterSpacing: 0.5 },
+  patientName: { fontSize: 15, fontWeight: '700', color: '#1a2b3c' },
+  positionText: { fontSize: 12, color: '#95a5a6', marginTop: 2 },
+  cardRight: { alignItems: 'flex-end', gap: 5 },
+  prioBadge: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 8, paddingVertical: 3,
+    borderRadius: 10, gap: 4,
+  },
+  prioText: { fontSize: 11, fontWeight: '700' },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
+  statusText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
+
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 60 },
+  errorText: { color: '#7f8c8d', fontSize: 14, marginTop: 12, textAlign: 'center', paddingHorizontal: 30 },
+  emptyText: { color: '#95a5a6', fontSize: 15, marginTop: 12 },
+  retryBtn: {
+    marginTop: 16, backgroundColor: THEME,
+    paddingHorizontal: 24, paddingVertical: 10, borderRadius: 20,
+  },
+  retryText: { color: '#fff', fontWeight: '700' },
 });
 
 export default StaffTodayQueueScreen;

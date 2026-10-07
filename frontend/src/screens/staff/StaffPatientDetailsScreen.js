@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
+import { useToast } from '../../context/ToastContext';
 
 const StaffPatientDetailsScreen = ({ route, navigation }) => {
   const { queueId } = route.params;
@@ -21,6 +22,7 @@ const StaffPatientDetailsScreen = ({ route, navigation }) => {
   const fadeAnim = useState(new Animated.Value(0))[0];
 
   const [submitting, setSubmitting] = useState(false);
+  const { showToast } = useToast();
 
   const fetchPatientDetails = async () => {
     try {
@@ -48,22 +50,17 @@ const StaffPatientDetailsScreen = ({ route, navigation }) => {
       const response = await staffApi.callPatient(queueId);
       if (response.success) {
         setSubmitting(false);
-        if (Platform.OS === 'web') {
-          window.alert("Patient has been successfully called for consultation.");
-          navigation.replace('StaffActiveConsultation');
-        } else {
-          Alert.alert(
-            "Update Successful", 
-            "Patient has been successfully called for consultation.",
-            [
-              { text: "OK", onPress: () => navigation.replace('StaffActiveConsultation') }
-            ]
-          );
-        }
+        showToast({
+          type: 'success',
+          title: 'Patient Called ✓',
+          message: `Token ${patientData?.queue?.tokenNumber || ''} has been successfully called for consultation.`,
+          duration: 4000,
+        });
+        setTimeout(() => navigation.replace('StaffActiveConsultation'), 400);
       }
     } catch (err) {
       setSubmitting(false);
-      Alert.alert("Error", "Failed to call patient. Please try again.");
+      showToast({ type: 'error', title: 'Error', message: 'Failed to call patient. Please try again.' });
     }
   };
 

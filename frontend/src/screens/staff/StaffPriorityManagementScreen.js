@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
+import { useToast } from '../../context/ToastContext';
 
 const StaffPriorityManagementScreen = ({ route, navigation }) => {
   const { queueId } = route.params;
@@ -16,6 +17,7 @@ const StaffPriorityManagementScreen = ({ route, navigation }) => {
   const [submitting, setSubmitting] = useState(false);
   const [queueData, setQueueData] = useState(null);
   const [selectedPriority, setSelectedPriority] = useState(null);
+  const { showToast } = useToast();
 
   const fetchDetails = async () => {
     try {
@@ -49,11 +51,16 @@ const StaffPriorityManagementScreen = ({ route, navigation }) => {
       setSubmitting(true);
       const response = await staffApi.updatePriority(queueId, selectedPriority);
       if (response.success) {
-        // Navigate to the Success Screen passing the updated data
-        navigation.replace('StaffQueueUpdated', { queue: response.data, oldPosition: queueData.queuePosition });
+        showToast({
+          type: selectedPriority === 'Emergency' ? 'error' : selectedPriority === 'Priority' ? 'warning' : 'success',
+          title: 'Priority Updated ✓',
+          message: `${queueData?.patientId?.fullName || 'Patient'}'s priority has been set to ${selectedPriority}.`,
+          duration: 4000,
+        });
+        setTimeout(() => navigation.replace('StaffQueueUpdated', { queue: response.data, oldPosition: queueData.queuePosition }), 400);
       }
     } catch (err) {
-      Alert.alert('Error', 'Unable to update priority. Please try again.');
+      showToast({ type: 'error', title: 'Update Failed', message: 'Unable to update priority. Please try again.' });
       setSubmitting(false);
     }
   };

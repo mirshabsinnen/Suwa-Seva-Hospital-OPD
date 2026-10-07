@@ -9,6 +9,9 @@ import StaffPriorityManagementScreen from '../screens/staff/StaffPriorityManagem
 import StaffQueueUpdatedScreen from '../screens/staff/StaffQueueUpdatedScreen';
 import StaffCallNextPatientScreen from '../screens/staff/StaffCallNextPatientScreen';
 import StaffActiveConsultationScreen from '../screens/staff/StaffActiveConsultationScreen';
+import StaffNotificationsScreen from '../screens/staff/StaffNotificationsScreen';
+import StaffEditProfileScreen from '../screens/staff/StaffEditProfileScreen';
+import StaffChangePasswordScreen from '../screens/staff/StaffChangePasswordScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +63,21 @@ const StaffNavigator = () => {
         name="StaffActiveConsultation" 
         component={StaffActiveConsultationScreen} 
         options={{ title: 'Active Consultation' }} 
+      />
+      <Stack.Screen 
+        name="StaffNotifications" 
+        component={StaffNotificationsScreen} 
+        options={{ title: 'Notifications' }} 
+      />
+      <Stack.Screen 
+        name="StaffEditProfile" 
+        component={StaffEditProfileScreen} 
+        options={{ title: 'Edit Profile' }} 
+      />
+      <Stack.Screen 
+        name="StaffChangePassword" 
+        component={StaffChangePasswordScreen} 
+        options={{ title: 'Change Password' }} 
       />
 
     </Stack.Navigator>

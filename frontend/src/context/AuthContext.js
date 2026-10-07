@@ -41,6 +41,28 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (updatedData) => {
+    try {
+      // For this prototype, we'll update the local state.
+      // In a real app, you would make an API call: await api.patch('/auth/profile', updatedData);
+      const newUserInfo = { ...userInfo, ...updatedData };
+      setUserInfo(newUserInfo);
+      await storage.setItem('userInfo', JSON.stringify(newUserInfo));
+      return newUserInfo;
+    } catch (error) {
+      throw error.response?.data?.message || 'Failed to update profile';
+    }
+  };
+
+  const updatePassword = async (currentPassword, newPassword) => {
+    try {
+      const response = await api.patch('/auth/password', { currentPassword, newPassword });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.message || 'Failed to update password';
+    }
+  };
+
   const logout = async () => {
     try {
       setUserToken(null);
@@ -75,7 +97,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ login, logout, register, isLoading, userToken, userInfo }}>
+    <AuthContext.Provider value={{ 
+      login, logout, register, updateProfile, updatePassword, 
+      isLoading, userToken, userInfo 
+    }}>
       {children}
     </AuthContext.Provider>
   );
