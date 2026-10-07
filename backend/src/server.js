@@ -8,6 +8,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Routes
+const authRoutes = require('./routes/authRoutes');
+const hospitalRoutes = require('./routes/hospitalRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
+const queueRoutes = require('./routes/queueRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const userRoutes = require('./routes/userRoutes');
+const staffRoutes = require('./routes/staffRoutes');
+app.use('/api/auth', authRoutes);
+app.use('/api/hospitals', hospitalRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/queue', queueRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/staff', staffRoutes);
 app.get("/", (req, res) => {
   res.json({
     message: "Hospital OPD Queue Management API is running"
