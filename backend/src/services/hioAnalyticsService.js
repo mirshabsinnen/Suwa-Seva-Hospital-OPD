@@ -101,7 +101,9 @@ async function dashboard(range = dayRange()) {
     priorityDistribution: { Normal: queue.normal, Priority: queue.priority, Emergency: queue.emergency } };
 }
 async function queueStats(range = dayRange(), page = 1, limit = 25) {
-  const activeScope = [...scopeQueue(range), { $match: { status: { $in: ACTIVE } } }];
+  // Past-day monitoring includes completed records, rather than an empty active-only roster.
+  const historical = range.end <= dayRange().start;
+  const activeScope = [...scopeQueue(range), ...(historical ? [] : [{ $match: { status: { $in: ACTIVE } } }])];
   const [summary, results] = await Promise.all([queueSummary(range), Queue.aggregate([...activeScope,
     { $facet: {
       total: [{ $count: 'count' }],

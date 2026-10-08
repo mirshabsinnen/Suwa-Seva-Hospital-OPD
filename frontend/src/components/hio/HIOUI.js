@@ -363,6 +363,7 @@ export function Screen({
   live = false,
   hasHeader = false,
   hero,
+  filters,
 }) {
   const { logout } = useContext(AuthContext);
 
@@ -545,6 +546,7 @@ export function Screen({
             LOADING / SCREEN CONTENT
         =================================================== */}
 
+        {filters}
         {loading && !data ? (
           <View style={ui.loading}>
             <ActivityIndicator

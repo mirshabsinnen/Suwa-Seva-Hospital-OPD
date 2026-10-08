@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import hioApi from '../../services/hioApi';
+import HIODateFilter, { useHioDate } from '../../components/hio/HIODateFilter';
 import useHioResource from '../../components/hio/useHioResource';
 import { Screen, EmptyState, Badge, number, minutes, statusLabel } from '../../components/hio/HIOUI';
 
@@ -95,24 +96,27 @@ function PageButton({ label, icon, onPress, disabled, iconRight }) {
 
 export default function HIOQueueStatisticsScreen() {
   const [page, setPage] = useState(1);
-  const resource = useHioResource(useCallback(signal => hioApi.queue({ signal, params: { page, limit: PAGE_SIZE } }), [page]), true);
+  const { selection, setSelection, date, isToday } = useHioDate();
+  const changeDate = value => { setPage(1); setSelection(value); };
+  const resource = useHioResource(useCallback(signal => hioApi.queue({ signal, params: { page, limit: PAGE_SIZE, date } }), [page, date]), isToday);
   const d = resource.data, sm = d?.summary;
   const total = d?.pagination?.total;
 
   return (
-    <Screen title="Queue & Waiting Statistics" subtitle="Today's OPD queue • Monitoring only" resource={resource} live>
+    <Screen title="Queue & Waiting Statistics" subtitle={isToday ? "Today's OPD queue - Monitoring only" : `Queue records - ${date}`} resource={resource} live={isToday}
+      filters={<HIODateFilter selection={selection} date={date} onChange={changeDate} />}>
       {d ? (
         <View style={s.wrap}>
           {/* 2. KPI cards */}
           <View style={s.kpiGrid}>
-            <Kpi label="Checked In" value={number(sm?.checkedIn)} detail="Arrived today" icon="checkmark-circle-outline" fg={C.primary} bg={C.tealSoft} />
+            <Kpi label="Checked In" value={number(sm?.checkedIn)} detail={isToday ? "Arrived today" : "Arrived on selected date"} icon="checkmark-circle-outline" fg={C.primary} bg={C.tealSoft} />
             <Kpi label="Waiting" value={number(sm?.waiting)} detail="Arrived & waiting" icon="people-outline" fg={C.amber} bg={C.amberSoft} />
             <Kpi label="Emergency" value={number(sm?.emergency)} detail="Active & arrived" icon="alert-circle-outline" fg={C.red} bg={C.redSoft} />
             <Kpi label="Avg. Wait" value={minutes(sm?.averageEstimatedWait)} detail="Stored estimate, not elapsed time" icon="time-outline" fg={C.navy} bg={C.blueSoft} />
           </View>
 
           {/* 3. Queue overview */}
-          <Card title="Queue Overview" subtitle="Refreshes every 30 seconds" icon="pulse-outline">
+          <Card title="Queue Overview" subtitle={isToday ? "Refreshes every 30 seconds" : "Stored statuses for the selected appointment date"} icon="pulse-outline">
             <View style={s.tileRow}>
               <Tile label="Called" value={number(sm?.called)} />
               <Tile label="Serving" value={number(sm?.serving)} />
@@ -128,7 +132,7 @@ export default function HIOQueueStatisticsScreen() {
 
           {/* 4. Roster heading */}
           <View>
-            <Text style={s.sectionTitle}>Active Queue Roster</Text>
+            <Text style={s.sectionTitle}>{isToday ? "Active Queue Roster" : "Queue Records"}</Text>
             <Text style={s.sectionSub}>Appointment date: {d.period?.label}. Reservations awaiting arrival are explicitly labelled.</Text>
           </View>
 
@@ -164,7 +168,7 @@ export default function HIOQueueStatisticsScreen() {
             );
           }) : (
             <Card title="Active Queue" icon="people-outline">
-              <EmptyState title="No active queue patients" description="Today's waiting, called and serving patients will appear here." icon="people-outline" />
+              <EmptyState title={isToday ? "No active queue patients" : "No queue records for this date"} description={isToday ? "Today's waiting, called and serving patients will appear here." : "No non-cancelled queue records were found for this appointment date."} icon="people-outline" />
             </Card>
           )}
 

@@ -56,6 +56,24 @@ const { dayRange, localDate } = require('../src/utils/hioDateRange');
     assert.equal(dashboard.waitingPatients, todayQueue.filter(q => q.status === 'waiting' && q.arrivalStatus === 'Arrived').length);
     assert.equal(queue.pagination.total, todayQueue.filter(q => ['waiting', 'called', 'serving'].includes(q.status)).length);
     for (const item of queue.activeQueue) assert.equal(localDate(new Date(item.appointmentDate)), range.label);
+    // Validate yesterday and an older actual appointment date without inserting fixtures.
+    const previous = new Date(range.start.getTime() - 86400000);
+    const oldest = await Appointment.findOne({ appointmentDate: { $lt: range.start } }).sort({ appointmentDate: 1 }).select('appointmentDate').lean();
+    const historicalDates = new Set([localDate(previous), ...(oldest ? [localDate(oldest.appointmentDate)] : [])]);
+    for (const date of historicalDates) {
+      const selected = dayRange(date);
+      const records = await Appointment.find({ appointmentDate: { $gte: selected.start, $lt: selected.end } }).select('_id status').lean();
+      const expectedQueue = await Queue.find({ appointmentId: { $in: records.filter(a => a.status !== 'cancelled').map(a => a._id) }, status: { $ne: 'cancelled' } }).lean();
+      const historicalDashboard = await request(`/dashboard?date=${date}`);
+      const historicalQueue = await request(`/queue-stats?date=${date}&limit=1`);
+      assert.equal(historicalDashboard.period.label, date);
+      assert.equal(historicalDashboard.todayAppointments, records.length);
+      assert.equal(historicalDashboard.appointmentTrendLast7Days.at(-1).date, date);
+      assert.equal(historicalQueue.pagination.total, expectedQueue.length);
+      assert.equal(historicalQueue.summary.completed, expectedQueue.filter(q => q.status === 'completed').length);
+      assert.ok(historicalQueue.activeQueue.length <= 1);
+      for (const item of historicalQueue.activeQueue) assert.equal(localDate(new Date(item.appointmentDate)), date);
+    }
     for (let i = 1; i < reports.length; i++) assert.ok(reports[i - 1].year * 12 + reports[i - 1].month > reports[i].year * 12 + reports[i].month);
     await request('/reports/2026/13', 400);
     await request('/reports/nope/10', 400);

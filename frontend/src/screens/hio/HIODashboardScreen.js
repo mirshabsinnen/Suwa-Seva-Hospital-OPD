@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
 import hioApi from '../../services/hioApi';
+import HIODateFilter, { useHioDate } from '../../components/hio/HIODateFilter';
 import useHioResource from '../../components/hio/useHioResource';
 import { Screen, number, minutes, palette } from '../../components/hio/HIOUI';
 import { LineChart, BarChart, DonutChart } from '../../components/hio/HIOCharts';
@@ -85,7 +86,8 @@ function Pill({ label, value, icon, fg, bg }) {
 
 export default function HIODashboardScreen() {
   const { userInfo } = useContext(AuthContext);
-  const resource = useHioResource(useCallback(signal => hioApi.dashboard({ signal }), []), true);
+  const { selection, setSelection, date, isToday } = useHioDate();
+  const resource = useHioResource(useCallback(signal => hioApi.dashboard({ signal, params: { date } }), [date]), isToday);
   const d = resource.data;
 
   const appointmentStatus = d ? [
@@ -121,26 +123,27 @@ export default function HIODashboardScreen() {
         ) : null}
       </View>
       <View style={s.live}>
-        <View style={s.liveDot} />
-        <Text style={s.liveText}>LIVE</Text>
+        {isToday ? <View style={s.liveDot} /> : null}
+        <Text style={s.liveText}>{isToday ? 'LIVE' : 'RECORDS'}</Text>
       </View>
     </View>
   ) : undefined;
 
   return (
-    <Screen title="HIO Analytics" subtitle="Operational overview for today" resource={resource} live hero={hero}>
+    <Screen title="HIO Analytics" subtitle={isToday ? "Operational overview for today" : `Operational records - ${date}`} resource={resource} live={isToday} hero={hero}
+      filters={<HIODateFilter selection={selection} date={date} onChange={setSelection} />}>
       {d ? (
         <View style={s.wrap}>
           {/* 2. KPI cards */}
           <View style={s.kpiGrid}>
-            <Kpi label="Today's Appointments" value={number(d.todayAppointments)} detail="All statuses, scheduled today" icon="calendar-outline" fg={C.primary} bg={C.tealSoft} />
-            <Kpi label="Waiting Now" value={number(d.waitingPatients)} detail="Arrived patients only" icon="people-outline" fg={C.amber} bg={C.amberSoft} />
+            <Kpi label={isToday ? "Today's Appointments" : "Appointments"} value={number(d.todayAppointments)} detail={`All statuses, scheduled ${date}`} icon="calendar-outline" fg={C.primary} bg={C.tealSoft} />
+            <Kpi label={isToday ? "Waiting Now" : "Waiting Records"} value={number(d.waitingPatients)} detail="Arrived patients only" icon="people-outline" fg={C.amber} bg={C.amberSoft} />
             <Kpi label="Queue Completed" value={number(d.completedVisits)} detail="Queue completion records" icon="checkmark-done-outline" fg={C.green} bg={C.greenSoft} />
             <Kpi label="Avg. Wait" value={minutes(d.averageEstimatedWaitingTime)} detail="Stored estimates, arrived & waiting" icon="time-outline" fg={C.navy} bg={C.blueSoft} />
           </View>
 
           {/* 3. Queue overview */}
-          <Card title="Queue Overview" subtitle="Today's cohort • refreshes every 30 seconds" icon="pulse-outline">
+          <Card title="Queue Overview" subtitle={isToday ? "Today's cohort - refreshes every 30 seconds" : `Appointment records for ${date}`} icon="pulse-outline">
             <View style={s.tileRow}>
               <Tile label="Checked in" value={number(d.checkedInPatients)} />
               <Tile label="Called" value={number(d.calledPatients)} />
@@ -160,7 +163,7 @@ export default function HIODashboardScreen() {
             title="Appointment Trend"
             subtitle="Scheduled appointments per day"
             icon="trending-up-outline"
-            right={<View style={s.chip}><Text style={s.chipText}>Last 7 days</Text></View>}
+            right={<View style={s.chip}><Text style={s.chipText}>{isToday ? "Last 7 days" : "7-day period"}</Text></View>}
           >
             <LineChart data={d.appointmentTrendLast7Days || []} />
           </Card>
