@@ -91,6 +91,21 @@ exports.updateAppointment = async (req, res) => {
     appointment.status = req.body.status || 'rescheduled';
 
     const updatedAppointment = await appointment.save();
+
+    // Update the existing queue for this appointment
+    const queue = await Queue.findOne({ appointmentId: req.params.id });
+    if (queue && req.body.appointmentDate) {
+      const dateStr = new Date(req.body.appointmentDate).toISOString().split('T')[0].replace(/-/g, '').slice(-4);
+      const count = await Queue.countDocuments({ 
+        createdAt: { $gte: new Date().setHours(0,0,0,0) } 
+      });
+      queue.tokenNumber = `A${dateStr}-${(count + 1).toString().padStart(3, '0')}`;
+      queue.status = 'waiting';
+      queue.arrivalStatus = 'Not Arrived';
+      queue.queuePosition = count + 1;
+      await queue.save();
+    }
+
     res.json(updatedAppointment);
   } catch (error) {
     res.status(500).json({ message: error.message || 'Server error' });
