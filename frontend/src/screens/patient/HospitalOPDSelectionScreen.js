@@ -82,20 +82,24 @@ const HospitalOPDSelectionScreen = ({ navigation }) => {
           <ActivityIndicator color="#005A71" style={{ marginVertical: 20 }} />
         ) : (
           <View style={styles.listContainer}>
-            {hospitals.map(hospital => (
-              <TouchableOpacity
-                key={hospital._id}
-                style={[styles.itemCard, selectedHospital?._id === hospital._id && styles.itemCardSelected]}
-                onPress={() => handleHospitalSelect(hospital)}
-              >
-                <Text style={[styles.itemTitle, selectedHospital?._id === hospital._id && styles.itemTextSelected]}>
-                  {hospital.name}
-                </Text>
-                <Text style={[styles.itemDesc, selectedHospital?._id === hospital._id && styles.itemTextSelected]}>
-                  {hospital.location}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {hospitals.length === 0 ? (
+              <Text style={styles.emptyText}>No hospitals available at the moment. Please ensure you are logged in.</Text>
+            ) : (
+              hospitals.map(hospital => (
+                <TouchableOpacity
+                  key={hospital._id}
+                  style={[styles.itemCard, selectedHospital?._id === hospital._id && styles.itemCardSelected]}
+                  onPress={() => handleHospitalSelect(hospital)}
+                >
+                  <Text style={[styles.itemTitle, selectedHospital?._id === hospital._id && styles.itemTextSelected]}>
+                    {hospital.name}
+                  </Text>
+                  <Text style={[styles.itemDesc, selectedHospital?._id === hospital._id && styles.itemTextSelected]}>
+                    {hospital.location}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            )}
           </View>
         )}
 
