@@ -1,5 +1,7 @@
-import React, { useCallback } from 'react';
-import { View, Text, Share, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useCallback, useRef, useState } from 'react';
+import { View, Text, Share, Alert, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { exportMonthlyReportPdf } from '../../services/hioReportPdf';
+import HIOReportNote from '../../components/hio/HIOReportNote';
 import { Ionicons } from '@expo/vector-icons';
 import hioApi from '../../services/hioApi';
 import useHioResource from '../../components/hio/useHioResource';
@@ -85,6 +87,20 @@ export default function HIOReportDetailsScreen({ route }) {
   const { year, month } = route.params || {};
   const resource = useHioResource(useCallback(signal => hioApi.report(year, month, { signal }), [year, month]));
   const d = resource.data;
+  const [exporting, setExporting] = useState(false);
+  const exportInProgress = useRef(false);
+  const downloadPdf = async () => {
+    if (!d || exportInProgress.current) return;
+    exportInProgress.current = true;
+    setExporting(true);
+    try { const reviewNotes = await hioApi.getReportNote(year, month);
+      await exportMonthlyReportPdf({ ...d, reviewNotes }); }
+    catch (error) {
+      console.error('HIO PDF export failed:', error?.message || error);
+      Alert.alert('Unable to export PDF', error?.message || 'The report could not be generated or shared. Please try again.');
+    }
+    finally { exportInProgress.current = false; setExporting(false); }
+  };
 
   const shareSummary = async () => {
     try {
@@ -198,7 +214,13 @@ export default function HIOReportDetailsScreen({ route }) {
           />
 
           {/* 8. Share */}
+          <HIOReportNote key={`${year}-${month}`} year={year} month={month} />
           <View>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Download monthly report PDF" accessibilityState={{ disabled: exporting, busy: exporting }} disabled={exporting} onPress={downloadPdf} style={[s.shareBtn, { marginBottom: 10, opacity: exporting ? 0.65 : 1 }]}>
+              {exporting ? <ActivityIndicator color="#fff" /> : <Ionicons name="download-outline" size={18} color="#fff" />}
+              <Text style={s.shareText}>{exporting ? 'Preparing PDF...' : 'Download PDF'}</Text>
+            </TouchableOpacity>
+            <Text style={[s.shareHint, { marginTop: 0, marginBottom: 12 }]}>Choose an available save/share app to keep the PDF.</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Share report summary" onPress={shareSummary} style={s.shareBtn}>
               <Ionicons name="share-outline" size={18} color="#fff" />
               <Text style={s.shareText}>Share Report Summary</Text>
