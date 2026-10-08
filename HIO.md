@@ -141,3 +141,62 @@ with live data on the connected phone and Performance passed a phone render chec
 Reports phone checks were interrupted by the Android home screen; Reports/Details
 are build-validated but still need the manual mobile acceptance steps above.
 Temporary initial-route overrides used during testing were restored.
+# Daily monitoring date filters
+
+## HIO-owned monthly review notes
+
+Monthly Report Details supports multiple administrative notes per HIO/month.
+Each note has a manually selected observationDate (YYYY-MM-DD, Asia/Colombo),
+status, note text and automatic createdAt/updatedAt. The observation date must be
+valid, within the report month and not in the future. Existing notes without a
+known observation date remain intact and display Not recorded until edited.
+GET /api/hio/report-notes/:year/:month now returns an array, newest observation
+first. POST creates another note; PUT/DELETE still target one owned ID. JWT/HIO
+checks remain unchanged. No patient/appointment/queue records are written.
+
+One-time database upgrade: run `node --use-system-ca scripts/migrate-hio-notes.cjs`
+from backend. It removes only the obsolete owner/year/month unique index and
+creates a non-unique lookup index, without modifying documents. It has been run
+successfully on this database, preserving its existing note.
+
+Run `node --use-system-ca scripts/check-hio-notes.cjs` from backend for live CRUD
+checks. It creates two temporary notes in an unused 2000 month and deletes only
+those IDs in cleanup. Multiple creation, ordering, persisted edits/status, invalid
+observation dates/months, JWT/role checks and second-HIO ownership tests passed.
+PDF export fetches the current HIO's saved notes before generating the document,
+and includes observation date, text, status and saved/updated time in a dedicated
+section. If note loading fails, export fails visibly instead of omitting notes.
+Text Share Summary remains unchanged. Phone date-picker and final PDF appearance
+still require manual verification.
+
+## Monthly PDF export
+
+Reports -> selected month -> Download PDF generates an aggregate-only PDF from
+the loaded API response using SDK-compatible expo-print and expo-sharing. It
+includes appointment statuses, completion rate, attendance/triage, available wait
+metrics and a daily count chart/table. Feedback and consultation sources remain
+explicitly unavailable. No patient identifiers are included. Android opens a
+save/share chooser; available destinations depend on installed apps. The generated
+file starts in the app cache, so use a destination to keep a permanent copy.
+Existing Share Report Summary remains available. Repeated export taps are blocked
+while generating/sharing, and failures show a retryable alert. Web uses the browser
+print dialog. Physical Android PDF rendering and saving require manual verification.
+
+Dashboard and Queue default to Today, with Yesterday and Select Date controls.
+The calendar allows today and earlier dates, using Asia/Colombo date keys.
+Today continues polling every 30 seconds; past dates support manual refresh only.
+Changing the queue date resets pagination. All summaries and charts use the selected
+appointment date; the dashboard trend ends on that date and spans seven days.
+Historical queue lists include non-cancelled completed records as well as active
+records. Today's roster remains active-only. Cancelled appointments and queue
+records remain excluded from queue analytics. Historical results show currently
+stored statuses, not a reconstruction of the queue at a past time.
+
+Verification: Android export and Babel compilation passed; date boundary tests
+passed. The read-only API checker now validates yesterday and an older real
+appointment date against independent database queries. This latest live check
+could not complete because Atlas was unreachable (DNS timeout / cluster connection
+failure). Existing lint configuration/cache permission issues and template
+TypeScript errors remain. Verify on the phone: Today -> Yesterday -> Select Date
+-> calendar month navigation -> select day -> paginate -> Today. Also test an
+empty day and refreshing after a connection error. No dependency was added.
