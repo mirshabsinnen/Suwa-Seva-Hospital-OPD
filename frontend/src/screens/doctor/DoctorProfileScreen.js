@@ -25,6 +25,19 @@ const DoctorProfileScreen = ({ navigation }) => {
   const [fullName, setFullName] = useState(userInfo?.fullName || '');
   const [phone, setPhone] = useState(userInfo?.phone || '');
   const [saving, setSaving] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  const [toastMessage, setToastMessage] = useState(null);
+  const [toastType, setToastType] = useState('success');
+
+  const showToast = (msg, type = 'success') => {
+    setToastMessage(msg);
+    setToastType(type);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -32,16 +45,45 @@ const DoctorProfileScreen = ({ navigation }) => {
       const updatedUser = await updateDoctorProfile({ fullName, phone });
       setUserInfo({ ...userInfo, ...updatedUser }); // update context
       setIsEditing(false);
-      Alert.alert("Success", "Profile updated successfully!");
+      showToast("Profile updated successfully!", "success");
     } catch (error) {
-      Alert.alert("Error", error.response?.data?.message || "Failed to update profile");
+      showToast(error.response?.data?.message || "Failed to update profile", "error");
     } finally {
       setSaving(false);
     }
   };
 
+  const handlePasswordUpdate = async () => {
+    if (newPassword.length < 6) {
+      showToast("Password must be at least 6 characters.", "error");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showToast("Passwords do not match.", "error");
+      return;
+    }
+    setSavingPassword(true);
+    try {
+      await updateDoctorProfile({ password: newPassword });
+      setShowPasswordForm(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      showToast("Password updated successfully!", "success");
+    } catch (error) {
+      showToast(error.response?.data?.message || "Failed to update password", "error");
+    } finally {
+      setSavingPassword(false);
+    }
+  };
+
   return (
     <SafeAreaView style={s.container}>
+      {toastMessage && (
+        <View style={[s.toast, toastType === 'error' ? s.toastError : s.toastSuccess]}>
+          <Text style={s.toastText}>{toastMessage}</Text>
+        </View>
+      )}
+      
       {/* ── Header Bar ── */}
       <View style={s.header}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -136,13 +178,45 @@ const DoctorProfileScreen = ({ navigation }) => {
         {/* ── Settings Card ── */}
         <View style={s.card}>
           <Text style={s.cardTitle}>Account Settings</Text>
-          <TouchableOpacity style={s.settingRow} activeOpacity={0.7}>
+          <TouchableOpacity style={s.settingRow} activeOpacity={0.7} onPress={() => setShowPasswordForm(!showPasswordForm)}>
             <View style={s.settingIconWrap}>
               <Ionicons name="lock-closed-outline" size={18} color={T.textDim} />
             </View>
             <Text style={s.settingText}>Change Password</Text>
-            <Ionicons name="chevron-forward" size={18} color={T.textDim} />
+            <Ionicons name={showPasswordForm ? "chevron-up" : "chevron-down"} size={18} color={T.textDim} />
           </TouchableOpacity>
+
+          {showPasswordForm && (
+            <View style={s.passwordForm}>
+              <Text style={s.infoLabel}>New Password</Text>
+              <TextInput 
+                style={[s.input, { marginBottom: 15 }]}
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry
+                placeholder="Enter new password"
+                placeholderTextColor={T.textDim}
+              />
+              
+              <Text style={s.infoLabel}>Confirm Password</Text>
+              <TextInput 
+                style={[s.input, { marginBottom: 20 }]}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+                placeholder="Re-enter new password"
+                placeholderTextColor={T.textDim}
+              />
+              
+              <TouchableOpacity style={s.passwordSubmitBtn} onPress={handlePasswordUpdate} disabled={savingPassword}>
+                {savingPassword ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={s.passwordSubmitText}>Update Password</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -151,6 +225,15 @@ const DoctorProfileScreen = ({ navigation }) => {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: T.bg },
+  
+  toast: {
+    position: 'absolute', top: 60, left: 20, right: 20, zIndex: 1000,
+    padding: 15, borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 5, elevation: 8
+  },
+  toastError: { backgroundColor: T.danger },
+  toastSuccess: { backgroundColor: T.success },
+  toastText: { color: '#fff', fontWeight: 'bold', textAlign: 'center', fontSize: 15 },
   
   // ── Header ──
   header: { 
@@ -243,7 +326,18 @@ const s = StyleSheet.create({
     width: 32, height: 32, borderRadius: 8, backgroundColor: '#f1f5f9',
     justifyContent: 'center', alignItems: 'center'
   },
-  settingText: { flex: 1, marginLeft: 14, fontSize: 14, color: T.text, fontWeight: '600' }
+  settingText: { flex: 1, marginLeft: 14, fontSize: 14, color: T.text, fontWeight: '600' },
+  
+  // Password Form
+  passwordForm: {
+    marginTop: 15, padding: 15, backgroundColor: 'rgba(0,90,113,0.02)',
+    borderRadius: 12, borderWidth: 1, borderColor: 'rgba(0,0,0,0.03)'
+  },
+  passwordSubmitBtn: {
+    backgroundColor: T.accent, paddingVertical: 12, borderRadius: 8,
+    alignItems: 'center', shadowColor: T.accent, shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.3, shadowRadius: 4, elevation: 2
+  },
+  passwordSubmitText: { color: '#fff', fontWeight: '700', fontSize: 14 }
 });
 
 export default DoctorProfileScreen;

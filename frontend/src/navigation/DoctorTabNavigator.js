@@ -29,19 +29,18 @@ const DoctorTabNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#005A71',
-        tabBarInactiveTintColor: '#94a3b8',
+        tabBarActiveTintColor: '#ffffff',
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.6)',
         tabBarStyle: {
           paddingBottom: 5,
           paddingTop: 5,
           height: 65,
-          backgroundColor: 'rgba(255,255,255,0.95)',
-          borderTopWidth: 1,
-          borderTopColor: 'rgba(0,90,113,0.1)',
+          backgroundColor: '#005A71', // Matching the header color
+          borderTopWidth: 0,
           elevation: 10,
           shadowColor: '#005A71',
           shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.05,
+          shadowOpacity: 0.15,
           shadowRadius: 10,
         },
         tabBarLabelStyle: {

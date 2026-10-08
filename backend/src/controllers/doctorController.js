@@ -248,12 +248,15 @@ const deleteConsultationDraft = async (req, res) => {
 // Update Doctor Profile (UPDATE on Profile Screen)
 const updateDoctorProfile = async (req, res) => {
   try {
-    const { fullName, phone } = req.body;
+    const { fullName, phone, password } = req.body;
     const user = await User.findById(req.user._id);
     
     if (user) {
       user.fullName = fullName || user.fullName;
       user.phone = phone || user.phone;
+      if (password) {
+        user.password = password;
+      }
       const updatedUser = await user.save();
       res.json({
         _id: updatedUser._id,
