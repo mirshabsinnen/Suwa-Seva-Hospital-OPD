@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { protect } = require('../middleware/authMiddleware');
 const controller = require('../controllers/hioController');
+const notes = require('../controllers/hioReportNoteController');
 
 router.use(protect);
 router.use((req, res, next) => {
@@ -10,6 +11,10 @@ router.use((req, res, next) => {
   next();
 });
 router.get('/dashboard', controller.dashboard);
+router.post('/report-notes', notes.create);
+router.get('/report-notes/:year/:month', notes.read);
+router.put('/report-notes/:id', notes.update);
+router.delete('/report-notes/:id', notes.remove);
 router.get('/queue-stats', controller.queueStats);
 router.get('/performance', controller.performance);
 router.get('/reports', controller.reports);
