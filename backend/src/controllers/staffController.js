@@ -120,7 +120,7 @@ exports.getNextPatient = async (req, res) => {
                                      .populate('patientId', 'fullName');
     
     if (!waitingPatients || waitingPatients.length === 0) {
-      return res.status(404).json({ success: false, message: 'No waiting patients found' });
+      return res.status(200).json({ success: true, data: null, message: 'No waiting patients found' });
     }
 
     const getPriorityWeight = (priority) => {
@@ -156,13 +156,7 @@ exports.callPatient = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Queue record not found' });
     }
 
-    // 1. Mark currently called patient as completed
-    await Queue.updateMany(
-      { status: 'called' },
-      { $set: { status: 'completed', completedTime: Date.now() } }
-    );
-
-    // 2. Mark this patient as called and arrived
+    // 1. Mark this patient as called and arrived
     queue.status = 'called';
     queue.arrivalStatus = 'Arrived';
     if (!queue.arrivalTime) {

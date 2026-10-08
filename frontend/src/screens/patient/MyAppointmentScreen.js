@@ -158,12 +158,15 @@ const MyAppointmentScreen = () => {
             <Text style={styles.hospitalName}>{item.hospitalId?.name}</Text>
           </View>
           <View style={[styles.statusBadge, badge]}>
-            <Text style={[styles.statusText, text]}>{item.status.toUpperCase()}</Text>
+            <Text style={[styles.statusText, text]}>{(item.status || 'booked').toUpperCase()}</Text>
           </View>
         </View>
 
         <View style={styles.cardBody}>
           <Text style={styles.opdText}>OPD: {item.opdId?.name}</Text>
+          {item.doctorId && (
+            <Text style={styles.opdText}>Doctor: Dr. {item.doctorId?.fullName}</Text>
+          )}
           <View style={styles.infoRow}>
             <Ionicons name="calendar-outline" size={14} color="#666" />
             <Text style={styles.infoText}> {formatDate(item.appointmentDate)}</Text>

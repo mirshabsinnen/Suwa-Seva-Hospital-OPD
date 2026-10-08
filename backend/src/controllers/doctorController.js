@@ -8,7 +8,7 @@ const getDashboardStats = async (req, res) => {
   try {
     const doctorId = req.user._id;
     // Remove date filter to match staff dashboard behavior for testing
-    const appointments = await Appointment.find({});
+    const appointments = await Appointment.find({ doctorId });
     const appointmentIds = appointments.map(app => app._id);
     
     const queues = await Queue.find({ appointmentId: { $in: appointmentIds } });
@@ -32,7 +32,7 @@ const getTodaysPatients = async (req, res) => {
   try {
     const doctorId = req.user._id;
     // Remove date filter to match staff dashboard behavior
-    const appointments = await Appointment.find({}).populate('patientId', 'fullName email phone').populate('opdId', 'name');
+    const appointments = await Appointment.find({ doctorId }).populate('patientId', 'fullName email phone').populate('opdId', 'name');
     const appointmentIds = appointments.map(app => app._id);
     
     const queues = await Queue.find({ appointmentId: { $in: appointmentIds } }).populate('patientId', 'fullName');

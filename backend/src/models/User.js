@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['patient', 'doctor', 'nurse', 'health_information_officer'],
     default: 'patient'
+  },
+  opdId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'OPD',
+    default: null
   }
 }, {
   timestamps: true

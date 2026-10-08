@@ -47,3 +47,15 @@ exports.updateUserProfile = async (req, res) => {
     res.status(500).json({ message: error.message || 'Server error' });
   }
 };
+
+// @desc    Get doctors by OPD
+// @route   GET /api/users/doctors/opd/:opdId
+// @access  Private
+exports.getDoctorsByOpd = async (req, res) => {
+  try {
+    const doctors = await User.find({ role: 'doctor', opdId: req.params.opdId }).select('-password');
+    res.json(doctors);
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+};

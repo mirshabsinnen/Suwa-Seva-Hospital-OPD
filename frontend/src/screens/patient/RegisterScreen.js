@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ActivityIndicator, SafeAreaView, KeyboardAvoidingView,
@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
-
+import api from '../../services/api';
 // ─── Role options ─────────────────────────────────────────────────────────────
 const ROLES = [
   { label: 'Patient',                     value: 'patient',                    icon: 'person-outline',       color: '#005A71' },
@@ -38,13 +38,50 @@ const RegisterScreen = ({ navigation }) => {
   const [showConfirm, setShowConfirm]       = useState(false);
   const [localLoading, setLocalLoading]     = useState(false);
 
+  const [hospitals, setHospitals]           = useState([]);
+  const [opds, setOpds]                     = useState([]);
+  const [selectedHospital, setSelectedHospital] = useState(null);
+  const [selectedOpd, setSelectedOpd]       = useState(null);
+  const [hospitalDropdownOpen, setHospitalDropdownOpen] = useState(false);
+  const [opdDropdownOpen, setOpdDropdownOpen] = useState(false);
+
   const { register } = useContext(AuthContext);
 
+  useEffect(() => {
+    if (selectedRole === 'doctor') {
+      fetchHospitals();
+    }
+  }, [selectedRole]);
+
+  const fetchHospitals = async () => {
+    try {
+      const res = await api.get('/hospitals');
+      setHospitals(res.data);
+    } catch (error) {
+      console.log('Error fetching hospitals', error);
+    }
+  };
+
+  const fetchOpds = async (hospitalId) => {
+    try {
+      const res = await api.get(`/hospitals/${hospitalId}/opds`);
+      setOpds(res.data);
+    } catch (error) {
+      console.log('Error fetching opds', error);
+    }
+  };
+
   const selectedRoleObj = ROLES.find(r => r.value === selectedRole);
+  const selectedHospitalObj = hospitals.find(h => h._id === selectedHospital);
+  const selectedOpdObj = opds.find(o => o._id === selectedOpd);
 
   const handleRegister = async () => {
     if (!fullName || !email || !phone || !password || !confirmPassword || !selectedRole) {
       showAlert('Missing Fields', 'Please fill in all fields and select a role.');
+      return;
+    }
+    if (selectedRole === 'doctor' && !selectedOpd) {
+      showAlert('Missing Fields', 'Please select a hospital and an OPD.');
       return;
     }
     if (password !== confirmPassword) {
@@ -58,7 +95,7 @@ const RegisterScreen = ({ navigation }) => {
 
     setLocalLoading(true);
     try {
-      await register({ fullName, email, phone, password, role: selectedRole });
+      await register({ fullName, email, phone, password, role: selectedRole, opdId: selectedOpd });
     } catch (error) {
       showAlert('Registration Failed', error.toString());
     } finally {
@@ -180,6 +217,79 @@ const RegisterScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 ))}
               </View>
+            )}
+
+            {/* Hospital & OPD Pickers for Doctor */}
+            {selectedRole === 'doctor' && (
+              <>
+                <Text style={styles.label}>Select Hospital</Text>
+                <TouchableOpacity
+                  style={[styles.inputRow, styles.dropdownTrigger, hospitalDropdownOpen && styles.dropdownTriggerOpen]}
+                  onPress={() => setHospitalDropdownOpen(!hospitalDropdownOpen)}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="business-outline" size={18} color={selectedHospital ? '#005A71' : '#999'} style={styles.inputIcon} />
+                  <Text style={[styles.dropdownPlaceholder, selectedHospital && styles.dropdownSelected]}>
+                    {selectedHospitalObj ? selectedHospitalObj.name : 'Select hospital...'}
+                  </Text>
+                  <Ionicons name={hospitalDropdownOpen ? 'chevron-up' : 'chevron-down'} size={18} color="#999" />
+                </TouchableOpacity>
+                {hospitalDropdownOpen && (
+                  <View style={styles.dropdownList}>
+                    {hospitals.map((hospital) => (
+                      <TouchableOpacity
+                        key={hospital._id}
+                        style={[styles.dropdownItem, selectedHospital === hospital._id && styles.dropdownItemSelected]}
+                        onPress={() => {
+                          setSelectedHospital(hospital._id);
+                          setSelectedOpd(null);
+                          setHospitalDropdownOpen(false);
+                          fetchOpds(hospital._id);
+                        }}
+                      >
+                        <Text style={[styles.dropdownItemText, selectedHospital === hospital._id && styles.dropdownItemTextSelected]}>
+                          {hospital.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+
+                {selectedHospital && (
+                  <>
+                    <Text style={styles.label}>Select OPD</Text>
+                    <TouchableOpacity
+                      style={[styles.inputRow, styles.dropdownTrigger, opdDropdownOpen && styles.dropdownTriggerOpen]}
+                      onPress={() => setOpdDropdownOpen(!opdDropdownOpen)}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="medkit-outline" size={18} color={selectedOpd ? '#005A71' : '#999'} style={styles.inputIcon} />
+                      <Text style={[styles.dropdownPlaceholder, selectedOpd && styles.dropdownSelected]}>
+                        {selectedOpdObj ? selectedOpdObj.name : 'Select OPD...'}
+                      </Text>
+                      <Ionicons name={opdDropdownOpen ? 'chevron-up' : 'chevron-down'} size={18} color="#999" />
+                    </TouchableOpacity>
+                    {opdDropdownOpen && (
+                      <View style={styles.dropdownList}>
+                        {opds.map((opd) => (
+                          <TouchableOpacity
+                            key={opd._id}
+                            style={[styles.dropdownItem, selectedOpd === opd._id && styles.dropdownItemSelected]}
+                            onPress={() => {
+                              setSelectedOpd(opd._id);
+                              setOpdDropdownOpen(false);
+                            }}
+                          >
+                            <Text style={[styles.dropdownItemText, selectedOpd === opd._id && styles.dropdownItemTextSelected]}>
+                              {opd.name}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </>
+                )}
+              </>
             )}
 
             {/* Password */}

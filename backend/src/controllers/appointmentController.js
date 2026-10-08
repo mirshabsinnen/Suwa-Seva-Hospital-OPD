@@ -6,7 +6,7 @@ const Queue = require('../models/Queue');
 // @access  Private
 exports.createAppointment = async (req, res) => {
   try {
-    const { hospitalId, opdId, appointmentDate, appointmentTime } = req.body;
+    const { hospitalId, opdId, doctorId, appointmentDate, appointmentTime } = req.body;
     
     // Check if slot is already taken by this patient
     const existing = await Appointment.findOne({
@@ -24,6 +24,7 @@ exports.createAppointment = async (req, res) => {
       patientId: req.user._id,
       hospitalId,
       opdId,
+      doctorId: doctorId || null,
       appointmentDate: new Date(appointmentDate),
       appointmentTime,
       status: 'confirmed'
@@ -62,6 +63,7 @@ exports.getPatientAppointments = async (req, res) => {
     const appointments = await Appointment.find({ patientId: req.user._id })
       .populate('hospitalId', 'name location')
       .populate('opdId', 'name')
+      .populate('doctorId', 'fullName')
       .sort({ appointmentDate: -1 });
     res.json(appointments);
   } catch (error) {

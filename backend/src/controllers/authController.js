@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @access  Public
 exports.registerUser = async (req, res) => {
   try {
-    const { fullName, email, phone, password, role } = req.body;
+    const { fullName, email, phone, password, role, opdId } = req.body;
 
     // Validate role
     const allowedRoles = ['patient', 'doctor', 'nurse', 'health_information_officer'];
@@ -32,6 +32,7 @@ exports.registerUser = async (req, res) => {
       phone,
       password,
       role: assignedRole,
+      opdId: assignedRole === 'doctor' ? opdId : undefined,
     });
 
     if (user) {
