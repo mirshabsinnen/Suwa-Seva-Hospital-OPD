@@ -8,13 +8,16 @@ const DateSlotSelectionScreen = ({ route, navigation }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
-  // Dummy dates for demonstration (next 7 days)
+  // Dates for appointment booking (today + next 6 days)
   const generateDates = () => {
     const dates = [];
-    for (let i = 1; i <= 7; i++) {
+    for (let i = 0; i < 7; i++) {
       const d = new Date();
       d.setDate(d.getDate() + i);
-      dates.push(d.toISOString().split('T')[0]);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      dates.push(`${year}-${month}-${day}`);
     }
     return dates;
   };
@@ -56,8 +59,15 @@ const DateSlotSelectionScreen = ({ route, navigation }) => {
   };
 
   const formatDate = (dateStr) => {
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if (dateStr === todayStr) {
+      return 'Today';
+    }
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const d = new Date(year, month - 1, day);
     const options = { weekday: 'short', month: 'short', day: 'numeric' };
-    return new Date(dateStr).toLocaleDateString(undefined, options);
+    return d.toLocaleDateString(undefined, options);
   };
 
   return (

@@ -59,7 +59,7 @@ const StaffTodayQueueScreen = ({ navigation }) => {
     if (query) {
       const q = query.toLowerCase();
       result = result.filter(i =>
-        i.tokenNumber.toLowerCase().includes(q) ||
+        (i.tokenNumber || '').toLowerCase().includes(q) ||
         (i.patientId?.fullName || '').toLowerCase().includes(q)
       );
     }

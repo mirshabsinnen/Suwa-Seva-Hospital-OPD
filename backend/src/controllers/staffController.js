@@ -2,17 +2,33 @@ const Queue = require('../models/Queue');
 const Appointment = require('../models/Appointment');
 const StaffHandover = require('../models/StaffHandover');
 
-// Helper to get today's appointment IDs
-const getTodaysAppointmentIds = async () => {
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999);
+// Helper to get queue query for staff dashboard and queue list
+// Covers today's appointments (including completed) PLUS all active queue items (waiting/called/serving)
+const getStaffQueueQuery = async () => {
+  const localStart = new Date();
+  localStart.setHours(0, 0, 0, 0);
+  const localEnd = new Date();
+  localEnd.setHours(23, 59, 59, 999);
+
+  const utcStart = new Date();
+  utcStart.setUTCHours(0, 0, 0, 0);
+  const utcEnd = new Date();
+  utcEnd.setUTCHours(23, 59, 59, 999);
+
+  const minDate = new Date(Math.min(localStart.getTime(), utcStart.getTime()));
+  const maxDate = new Date(Math.max(localEnd.getTime(), utcEnd.getTime()));
   
   const todaysAppointments = await Appointment.find({
-    appointmentDate: { $gte: startOfDay, $lte: endOfDay }
+    appointmentDate: { $gte: minDate, $lte: maxDate }
   }).select('_id');
-  return todaysAppointments.map(a => a._id);
+  const todaysAppointmentIds = todaysAppointments.map(a => a._id);
+
+  return {
+    $or: [
+      { appointmentId: { $in: todaysAppointmentIds } },
+      { status: { $in: ['waiting', 'called', 'serving'] } }
+    ]
+  };
 };
 
 // ==========================================
@@ -20,8 +36,7 @@ const getTodaysAppointmentIds = async () => {
 // ==========================================
 exports.getDashboardStats = async (req, res) => {
   try {
-    const todaysAppointmentIds = await getTodaysAppointmentIds();
-    const query = { appointmentId: { $in: todaysAppointmentIds } };
+    const query = await getStaffQueueQuery();
 
     const totalPatients = await Queue.countDocuments(query);
     const waitingPatients = await Queue.countDocuments({ ...query, status: 'waiting' });
@@ -31,7 +46,12 @@ exports.getDashboardStats = async (req, res) => {
     const currentServing = await Queue.findOne({ ...query, status: 'called' }).sort({ calledTime: -1 });
     
     // Find next patient using priority weighting (Emergency > Priority > Normal) and arrival status
-    const waitingList = await Queue.find({ ...query, status: 'waiting', arrivalStatus: 'Arrived' });
+    // Prefer Arrived patients; if none arrived, fall back to waiting patients
+    let waitingList = await Queue.find({ ...query, status: 'waiting', arrivalStatus: 'Arrived' });
+    if (waitingList.length === 0) {
+      waitingList = await Queue.find({ ...query, status: 'waiting' });
+    }
+
     const getPriorityWeight = (p) => p === 'Emergency' ? 3 : p === 'Priority' ? 2 : 1;
     waitingList.sort((a, b) => {
       const wA = getPriorityWeight(a.priority);
@@ -63,8 +83,8 @@ exports.getDashboardStats = async (req, res) => {
 // ==========================================
 exports.getTodayQueue = async (req, res) => {
   try {
-    const todaysAppointmentIds = await getTodaysAppointmentIds();
-    const queue = await Queue.find({ appointmentId: { $in: todaysAppointmentIds } })
+    const query = await getStaffQueueQuery();
+    const queue = await Queue.find(query)
                              .populate('patientId', 'fullName')
                              .sort({ queuePosition: 1 });
     
@@ -135,13 +155,21 @@ exports.updatePriority = async (req, res) => {
 
 exports.getNextPatient = async (req, res) => {
   try {
-    const todaysAppointmentIds = await getTodaysAppointmentIds();
-    const waitingPatients = await Queue.find({ 
-      appointmentId: { $in: todaysAppointmentIds },
+    const query = await getStaffQueueQuery();
+    let waitingPatients = await Queue.find({ 
+      ...query,
       status: 'waiting', 
       arrivalStatus: 'Arrived' 
     }).populate('patientId', 'fullName');
     
+    // If no arrived patients, fall back to any waiting patients in queue
+    if (!waitingPatients || waitingPatients.length === 0) {
+      waitingPatients = await Queue.find({ 
+        ...query,
+        status: 'waiting' 
+      }).populate('patientId', 'fullName');
+    }
+
     if (!waitingPatients || waitingPatients.length === 0) {
       return res.status(200).json({ success: true, data: null, message: 'No waiting patients found' });
     }
@@ -194,9 +222,8 @@ exports.callPatient = async (req, res) => {
     await queue.save();
 
     // 2. Update currentServingToken across all active queue entries
-    const todaysAppointmentIds = await getTodaysAppointmentIds();
     await Queue.updateMany(
-      { appointmentId: { $in: todaysAppointmentIds }, status: { $ne: 'completed' } },
+      { status: { $in: ['waiting', 'called', 'serving'] } },
       { $set: { currentServingToken: queue.tokenNumber } }
     );
 
