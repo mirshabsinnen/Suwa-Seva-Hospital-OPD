@@ -31,12 +31,7 @@ const PatientNavigator = () => (
   </Stack.Navigator>
 );
 
-// ─── Doctor Stack ─────────────────────────────────────────────────────────────
-const DoctorNavigator = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="DoctorDashboard" component={DoctorDashboardScreen} />
-  </Stack.Navigator>
-);
+import DoctorNavigator from './DoctorNavigator';
 
 // ─── Nurse Stack (Handled by StaffNavigator) ──────────────────────────────────────────────────────────────
 // ─── HIO Stack ────────────────────────────────────────────────────────────────

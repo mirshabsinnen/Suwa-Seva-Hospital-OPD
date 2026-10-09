@@ -52,7 +52,7 @@ const StaffConfirmArrivalScreen = ({ route, navigation }) => {
           message: `${queueData?.patientId?.fullName || 'Patient'} (Token: ${queueData?.tokenNumber}) has been marked as arrived.`,
           duration: 4000,
         });
-        setTimeout(() => navigation.navigate('StaffTodayQueue'), 600);
+        setTimeout(() => navigation.navigate('StaffPatientDetails', { queueId }), 600);
       }
     } catch (err) {
       showToast({

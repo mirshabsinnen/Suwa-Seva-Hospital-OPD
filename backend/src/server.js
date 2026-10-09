@@ -21,6 +21,7 @@ const queueRoutes = require('./routes/queueRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const userRoutes = require('./routes/userRoutes');
 const staffRoutes = require('./routes/staffRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/hospitals', hospitalRoutes);
 app.use('/api/appointments', appointmentRoutes);
@@ -29,6 +30,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/hio', require('./routes/hioRoutes'));
+app.use('/api/doctor', doctorRoutes);
 app.get("/", (req, res) => {
   res.json({
     message: "Hospital OPD Queue Management API is running"

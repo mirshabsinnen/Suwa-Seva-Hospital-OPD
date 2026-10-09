@@ -129,7 +129,7 @@ const StaffActiveConsultationScreen = ({ navigation }) => {
 
           <TouchableOpacity 
             style={styles.dashboardButton}
-            onPress={() => navigation.navigate('StaffDashboard')}
+            onPress={() => navigation.navigate('StaffMainTabs')}
           >
             <Text style={styles.dashboardButtonText}>Return to Dashboard</Text>
           </TouchableOpacity>
