@@ -10,6 +10,7 @@ const ProfileScreen = () => {
   const [fullName, setFullName] = useState(userInfo?.fullName || '');
   const [email, setEmail] = useState(userInfo?.email || '');
   const [phone, setPhone] = useState(userInfo?.phone || '');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleUpdate = async () => {
@@ -20,12 +21,13 @@ const ProfileScreen = () => {
 
     setLoading(true);
     try {
-      const response = await api.put(`/users/${userInfo._id}`, {
-        fullName,
-        email,
-        phone
-      });
+      const payload = { fullName, email, phone };
+      if (password) {
+        payload.password = password;
+      }
+      const response = await api.put(`/users/${userInfo._id}`, payload);
       Alert.alert('Success', 'Profile updated successfully');
+      setPassword('');
       // In a real app, update AuthContext here as well.
     } catch (error) {
       Alert.alert('Update Failed', error.response?.data?.message || 'Something went wrong');
@@ -72,6 +74,16 @@ const ProfileScreen = () => {
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
+            />
+
+            <Text style={styles.label}>New Password (Optional)</Text>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              placeholder="Leave blank to keep current password"
+              placeholderTextColor="#999"
             />
 
             <TouchableOpacity 
