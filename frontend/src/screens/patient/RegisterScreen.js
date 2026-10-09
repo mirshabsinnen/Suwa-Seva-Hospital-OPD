@@ -43,6 +43,8 @@ const RegisterScreen = ({ navigation }) => {
 
   const [hospitals, setHospitals]           = useState([]);
   const [opds, setOpds]                     = useState([]);
+  const [loadingHospitals, setLoadingHospitals] = useState(false);
+  const [loadingOpds, setLoadingOpds]       = useState(false);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [selectedOpd, setSelectedOpd]       = useState(null);
   const [hospitalDropdownOpen, setHospitalDropdownOpen] = useState(false);
@@ -51,26 +53,43 @@ const RegisterScreen = ({ navigation }) => {
   const { register } = useContext(AuthContext);
 
   useEffect(() => {
+    fetchHospitals();
+  }, []);
+
+  useEffect(() => {
     if (selectedRole === 'doctor') {
-      fetchHospitals();
+      if (hospitals.length === 0) {
+        fetchHospitals();
+      }
+    } else {
+      setSelectedHospital(null);
+      setSelectedOpd(null);
+      setHospitalDropdownOpen(false);
+      setOpdDropdownOpen(false);
     }
   }, [selectedRole]);
 
   const fetchHospitals = async () => {
     try {
+      setLoadingHospitals(true);
       const res = await api.get('/hospitals');
-      setHospitals(res.data);
+      setHospitals(res.data || []);
     } catch (error) {
       console.log('Error fetching hospitals', error);
+    } finally {
+      setLoadingHospitals(false);
     }
   };
 
   const fetchOpds = async (hospitalId) => {
     try {
+      setLoadingOpds(true);
       const res = await api.get(`/hospitals/${hospitalId}/opds`);
-      setOpds(res.data);
+      setOpds(res.data || []);
     } catch (error) {
       console.log('Error fetching opds', error);
+    } finally {
+      setLoadingOpds(false);
     }
   };
 
@@ -168,7 +187,11 @@ const RegisterScreen = ({ navigation }) => {
             <Text style={styles.label}>Select Role</Text>
             <TouchableOpacity
               style={[styles.inputRow, styles.dropdownTrigger, dropdownOpen && styles.dropdownTriggerOpen]}
-              onPress={() => setDropdownOpen(!dropdownOpen)}
+              onPress={() => {
+                setHospitalDropdownOpen(false);
+                setOpdDropdownOpen(false);
+                setDropdownOpen(!dropdownOpen);
+              }}
               activeOpacity={0.8}
             >
               <Ionicons
@@ -228,14 +251,22 @@ const RegisterScreen = ({ navigation }) => {
                 <Text style={styles.label}>Select Hospital</Text>
                 <TouchableOpacity
                   style={[styles.inputRow, styles.dropdownTrigger, hospitalDropdownOpen && styles.dropdownTriggerOpen]}
-                  onPress={() => setHospitalDropdownOpen(!hospitalDropdownOpen)}
+                  onPress={() => {
+                    setDropdownOpen(false);
+                    setOpdDropdownOpen(false);
+                    setHospitalDropdownOpen(!hospitalDropdownOpen);
+                  }}
                   activeOpacity={0.8}
                 >
                   <Ionicons name="business-outline" size={18} color={selectedHospital ? '#005A71' : '#999'} style={styles.inputIcon} />
-                  <Text style={[styles.dropdownPlaceholder, selectedHospital && styles.dropdownSelected]}>
+                  <Text style={[styles.dropdownPlaceholder, selectedHospital && styles.dropdownSelected]} numberOfLines={1}>
                     {selectedHospitalObj ? selectedHospitalObj.name : 'Select hospital...'}
                   </Text>
-                  <Ionicons name={hospitalDropdownOpen ? 'chevron-up' : 'chevron-down'} size={18} color="#999" />
+                  {loadingHospitals ? (
+                    <ActivityIndicator size="small" color="#005A71" />
+                  ) : (
+                    <Ionicons name={hospitalDropdownOpen ? 'chevron-up' : 'chevron-down'} size={18} color="#999" />
+                  )}
                 </TouchableOpacity>
                 {hospitalDropdownOpen && (
                   <View style={styles.dropdownList}>
@@ -250,9 +281,19 @@ const RegisterScreen = ({ navigation }) => {
                           fetchOpds(hospital._id);
                         }}
                       >
-                        <Text style={[styles.dropdownItemText, selectedHospital === hospital._id && styles.dropdownItemTextSelected]}>
-                          {hospital.name}
-                        </Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.dropdownItemText, selectedHospital === hospital._id && styles.dropdownItemTextSelected]}>
+                            {hospital.name}
+                          </Text>
+                          {hospital.location && (
+                            <Text style={styles.dropdownItemSubText}>
+                              {hospital.location}
+                            </Text>
+                          )}
+                        </View>
+                        {selectedHospital === hospital._id && (
+                          <Ionicons name="checkmark" size={18} color="#005A71" style={{ marginLeft: 6 }} />
+                        )}
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -263,31 +304,55 @@ const RegisterScreen = ({ navigation }) => {
                     <Text style={styles.label}>Select OPD</Text>
                     <TouchableOpacity
                       style={[styles.inputRow, styles.dropdownTrigger, opdDropdownOpen && styles.dropdownTriggerOpen]}
-                      onPress={() => setOpdDropdownOpen(!opdDropdownOpen)}
+                      onPress={() => {
+                        setDropdownOpen(false);
+                        setHospitalDropdownOpen(false);
+                        setOpdDropdownOpen(!opdDropdownOpen);
+                      }}
                       activeOpacity={0.8}
                     >
                       <Ionicons name="medkit-outline" size={18} color={selectedOpd ? '#005A71' : '#999'} style={styles.inputIcon} />
-                      <Text style={[styles.dropdownPlaceholder, selectedOpd && styles.dropdownSelected]}>
-                        {selectedOpdObj ? selectedOpdObj.name : 'Select OPD...'}
+                      <Text style={[styles.dropdownPlaceholder, selectedOpd && styles.dropdownSelected]} numberOfLines={1}>
+                        {selectedOpdObj ? selectedOpdObj.name : (loadingOpds ? 'Loading OPDs...' : 'Select OPD...')}
                       </Text>
-                      <Ionicons name={opdDropdownOpen ? 'chevron-up' : 'chevron-down'} size={18} color="#999" />
+                      {loadingOpds ? (
+                        <ActivityIndicator size="small" color="#005A71" />
+                      ) : (
+                        <Ionicons name={opdDropdownOpen ? 'chevron-up' : 'chevron-down'} size={18} color="#999" />
+                      )}
                     </TouchableOpacity>
                     {opdDropdownOpen && (
                       <View style={styles.dropdownList}>
-                        {opds.map((opd) => (
-                          <TouchableOpacity
-                            key={opd._id}
-                            style={[styles.dropdownItem, selectedOpd === opd._id && styles.dropdownItemSelected]}
-                            onPress={() => {
-                              setSelectedOpd(opd._id);
-                              setOpdDropdownOpen(false);
-                            }}
-                          >
-                            <Text style={[styles.dropdownItemText, selectedOpd === opd._id && styles.dropdownItemTextSelected]}>
-                              {opd.name}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
+                        {opds.length === 0 && !loadingOpds ? (
+                          <View style={{ padding: 12, alignItems: 'center' }}>
+                            <Text style={{ fontSize: 13, color: '#888' }}>No active OPDs found for this hospital</Text>
+                          </View>
+                        ) : (
+                          opds.map((opd) => (
+                            <TouchableOpacity
+                              key={opd._id}
+                              style={[styles.dropdownItem, selectedOpd === opd._id && styles.dropdownItemSelected]}
+                              onPress={() => {
+                                setSelectedOpd(opd._id);
+                                setOpdDropdownOpen(false);
+                              }}
+                            >
+                              <View style={{ flex: 1 }}>
+                                <Text style={[styles.dropdownItemText, selectedOpd === opd._id && styles.dropdownItemTextSelected]}>
+                                  {opd.name}
+                                </Text>
+                                {opd.description && (
+                                  <Text style={styles.dropdownItemSubText} numberOfLines={1}>
+                                    {opd.description}
+                                  </Text>
+                                )}
+                              </View>
+                              {selectedOpd === opd._id && (
+                                <Ionicons name="checkmark" size={18} color="#005A71" style={{ marginLeft: 6 }} />
+                              )}
+                            </TouchableOpacity>
+                          ))
+                        )}
                       </View>
                     )}
                   </>
@@ -409,6 +474,7 @@ const styles = StyleSheet.create({
   dropdownItemSelected: { backgroundColor: '#eef6f9' },
   dropdownItemText:     { fontSize: 14, color: '#555' },
   dropdownItemTextSelected: { color: '#005A71', fontWeight: '600' },
+  dropdownItemSubText:  { fontSize: 11, color: '#888', marginTop: 2 },
 
   // Button
   button: {
