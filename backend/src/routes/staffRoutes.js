@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const staffController = require('../controllers/staffController');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
-// For prototype testing, we are omitting authentication middleware here.
-// In a real app, you would add `protect` and `authorize('nurse')` middleware.
+router.use(protect);
+router.use(authorize('nurse'));
 
 // Dashboard
 router.get('/dashboard', staffController.getDashboardStats);
