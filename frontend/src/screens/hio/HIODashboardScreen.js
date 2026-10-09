@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
@@ -10,7 +10,7 @@ import { LineChart, BarChart, DonutChart } from '../../components/hio/HIOCharts'
 
 const C = {
   primary: '#005A71',
-  navy: '#0A3D62',
+  navy: '#005A71',
   bg: '#F4F7F9',
   text: '#0F2A3D',
   muted: '#64748B',

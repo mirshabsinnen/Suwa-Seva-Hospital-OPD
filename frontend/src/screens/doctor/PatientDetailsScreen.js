@@ -152,23 +152,23 @@ const PatientDetailsScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { backgroundColor: '#005A71', padding: 20, paddingTop: 40, flexDirection: 'row', alignItems: 'center' },
-  backBtn: { marginRight: 15 },
-  headerTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
-  body: { padding: 15 },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 15, marginBottom: 15, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, elevation: 2 },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 8 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+  header: { backgroundColor: '#005A71', paddingHorizontal: 16, paddingVertical: 16, paddingTop: 44, flexDirection: 'row', alignItems: 'center' },
+  backBtn: { marginRight: 14 },
+  headerTitle: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
+  body: { padding: 16, backgroundColor: '#FFFFFF' },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: '#E5ECF0', shadowColor: '#005A71', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
+  cardTitle: { fontSize: 15, fontWeight: '700', color: '#005A71', marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#EBF1F4', paddingBottom: 8 },
   infoRow: { flexDirection: 'row', marginBottom: 8 },
-  infoLabel: { width: 80, fontSize: 14, color: '#666' },
-  infoValue: { flex: 1, fontSize: 14, color: '#333' },
-  footer: { padding: 20, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee' },
-  primaryBtn: { backgroundColor: '#005A71', padding: 15, borderRadius: 8, alignItems: 'center' },
-  primaryBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  outlineBtn: { borderWidth: 1, borderColor: '#005A71', padding: 10, borderRadius: 8, alignItems: 'center' },
-  outlineBtnText: { color: '#005A71', fontSize: 14, fontWeight: 'bold' },
-  helperText: { color: '#e53935', fontSize: 13, textAlign: 'center' }
+  infoLabel: { width: 85, fontSize: 13, color: '#688291', fontWeight: '600' },
+  infoValue: { flex: 1, fontSize: 14, color: '#1B2C36', fontWeight: '500' },
+  footer: { padding: 16, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#EBF1F4' },
+  primaryBtn: { backgroundColor: '#005A71', paddingVertical: 14, borderRadius: 12, alignItems: 'center', elevation: 2, shadowColor: '#005A71', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5 },
+  primaryBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+  outlineBtn: { borderWidth: 1.5, borderColor: '#005A71', paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+  outlineBtnText: { color: '#005A71', fontSize: 14, fontWeight: '700' },
+  helperText: { color: '#DC2626', fontSize: 13, textAlign: 'center', fontWeight: '500' }
 });
 
 export default PatientDetailsScreen;

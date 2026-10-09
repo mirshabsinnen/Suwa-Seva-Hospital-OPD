@@ -62,7 +62,7 @@ export default function HIODateFilter({ selection, date, onChange, title = "Appo
 
 const s = StyleSheet.create({
   card: { backgroundColor: '#fff', padding: 14, borderRadius: 16, borderWidth: 1, borderColor: '#E3EAEF', marginBottom: 14 },
-  title: { fontSize: 14, fontWeight: '700', color: '#0A3D62' },
+  title: { fontSize: 14, fontWeight: '700', color: '#005A71' },
   row: { flexDirection: 'row', gap: 6, marginTop: 10 },
   button: { flexGrow: 1, paddingHorizontal: 10, paddingVertical: 12, borderRadius: 10, backgroundColor: '#EEF4F8', alignItems: 'center' },
   active: { backgroundColor: '#005A71' },

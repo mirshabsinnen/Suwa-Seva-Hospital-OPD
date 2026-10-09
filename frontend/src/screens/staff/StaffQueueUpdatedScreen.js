@@ -48,29 +48,29 @@ const StaffQueueUpdatedScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f4f6f8', padding: 20, justifyContent: 'center', alignItems: 'center' },
-  successIconBox: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#27ae60', justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
-  checkIcon: { color: '#fff', fontSize: 40, fontWeight: 'bold' },
-  successTitle: { fontSize: 22, fontWeight: 'bold', color: '#2c3e50', marginBottom: 30 },
+  container: { flex: 1, backgroundColor: '#FFFFFF', padding: 24, justifyContent: 'center', alignItems: 'center' },
+  successIconBox: { width: 76, height: 76, borderRadius: 38, backgroundColor: '#10B981', justifyContent: 'center', alignItems: 'center', marginBottom: 18, shadowColor: '#10B981', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
+  checkIcon: { color: '#fff', fontSize: 36, fontWeight: 'bold' },
+  successTitle: { fontSize: 22, fontWeight: '800', color: '#0F2A38', marginBottom: 24 },
   
-  summaryCard: { backgroundColor: '#fff', width: '100%', borderRadius: 15, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 5, elevation: 3, marginBottom: 30 },
-  summaryLabel: { fontSize: 16, color: '#7f8c8d', marginBottom: 10 },
-  summaryValue: { color: '#2c3e50', fontWeight: 'bold' },
-  highlightText: { color: '#e74c3c' },
-  divider: { height: 1, backgroundColor: '#ecf0f1', marginVertical: 15 },
+  summaryCard: { backgroundColor: '#FFFFFF', width: '100%', borderRadius: 18, padding: 20, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: '#005A71', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3, marginBottom: 28 },
+  summaryLabel: { fontSize: 15, color: '#64748B', marginBottom: 10 },
+  summaryValue: { color: '#0F2A38', fontWeight: '800' },
+  highlightText: { color: '#EF4444' },
+  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 14 },
   
   positionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   posBox: { alignItems: 'center' },
-  posLabel: { fontSize: 14, color: '#7f8c8d', marginBottom: 5 },
-  oldPosText: { fontSize: 24, color: '#95a5a6', textDecorationLine: 'line-through' },
-  newPosText: { fontSize: 32, color: '#27ae60', fontWeight: 'bold' },
-  arrow: { fontSize: 30, color: '#bdc3c7' },
+  posLabel: { fontSize: 13, color: '#64748B', marginBottom: 5 },
+  oldPosText: { fontSize: 22, color: '#94A3B8', textDecorationLine: 'line-through' },
+  newPosText: { fontSize: 30, color: '#10B981', fontWeight: '900' },
+  arrow: { fontSize: 26, color: '#CBD5E1' },
 
-  primaryButton: { backgroundColor: '#0a3d62', width: '100%', paddingVertical: 15, borderRadius: 10, alignItems: 'center', marginBottom: 15 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  primaryButton: { backgroundColor: '#005A71', width: '100%', paddingVertical: 15, borderRadius: 12, alignItems: 'center', marginBottom: 14, shadowColor: '#005A71', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.25, shadowRadius: 6, elevation: 4 },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   
-  secondaryButton: { backgroundColor: 'transparent', width: '100%', paddingVertical: 15, borderRadius: 10, alignItems: 'center', borderWidth: 2, borderColor: '#0a3d62' },
-  secondaryButtonText: { color: '#0a3d62', fontSize: 16, fontWeight: 'bold' }
+  secondaryButton: { backgroundColor: 'transparent', width: '100%', paddingVertical: 14, borderRadius: 12, alignItems: 'center', borderWidth: 1.5, borderColor: '#005A71' },
+  secondaryButtonText: { color: '#005A71', fontSize: 16, fontWeight: '700' }
 });
 
 export default StaffQueueUpdatedScreen;

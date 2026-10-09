@@ -5,8 +5,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import staffApi from '../../services/staffApi';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { FadeInUpView } from '../../components/MedicalAnimations';
 
-const THEME = '#0a3d62';
+const THEME = '#005A71';
 
 const showAlert = (title, msg, buttons) => {
   if (Platform.OS === 'web') {
@@ -179,49 +181,49 @@ const StaffShiftHandoverScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f0f4f8' },
+  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
 
   header: {
     backgroundColor: THEME,
     paddingHorizontal: 24,
-    paddingTop: 28,
-    paddingBottom: 36,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    paddingTop: 24,
+    paddingBottom: 34,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
     alignItems: 'center',
   },
-  headerTitle: { color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: 0.3 },
-  headerSub: { color: '#a0c4e0', fontSize: 13, marginTop: 6, textAlign: 'center' },
+  headerTitle: { color: '#fff', fontSize: 22, fontWeight: '800', letterSpacing: 0.3 },
+  headerSub: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: 4, textAlign: 'center' },
 
-  formArea: { padding: 20, marginTop: -12 },
+  formArea: { padding: 20, marginTop: -12, backgroundColor: '#FFFFFF' },
 
-  sectionLabel: { fontSize: 13, fontWeight: '700', color: '#7f8c8d', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginTop: 8 },
+  sectionLabel: { fontSize: 13, fontWeight: '700', color: '#64748B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12, marginTop: 8 },
 
   shiftRow: { flexDirection: 'row', gap: 10, marginBottom: 20 },
   shiftCard: {
-    flex: 1, backgroundColor: '#fff', borderRadius: 16,
-    borderWidth: 2, borderColor: '#dde4ea',
+    flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16,
+    borderWidth: 1.5, borderColor: '#E2E8F0',
     paddingVertical: 14, alignItems: 'center', gap: 6,
-    shadowColor: '#0a3d62', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07, shadowRadius: 6, elevation: 2,
+    shadowColor: THEME, shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
   },
-  shiftCardText: { fontSize: 13, fontWeight: '700', color: '#5a6a7a' },
+  shiftCardText: { fontSize: 13, fontWeight: '700', color: '#0F2A38' },
 
-  fieldLabel: { fontSize: 13, fontWeight: '600', color: '#34495e', marginBottom: 8, marginTop: 12 },
+  fieldLabel: { fontSize: 13, fontWeight: '600', color: '#0F2A38', marginBottom: 8, marginTop: 12 },
 
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#dde4ea',
+    borderColor: '#E2E8F0',
     paddingHorizontal: 14,
-    shadowColor: '#0a3d62', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+    shadowColor: THEME, shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
   },
   inputIcon: { marginRight: 10 },
-  input: { flex: 1, fontSize: 15, color: '#2c3e50', paddingVertical: 13 },
+  input: { flex: 1, fontSize: 14, color: '#0F2A38', paddingVertical: 13 },
 
   statsRow: { flexDirection: 'row' },
 
@@ -231,25 +233,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     alignItems: 'flex-start',
     fontSize: 14,
-    color: '#2c3e50',
+    color: '#0F2A38',
     flexDirection: 'column',
   },
 
   submitBtn: {
     backgroundColor: THEME,
-    marginTop: 28,
-    paddingVertical: 16,
-    borderRadius: 16,
+    marginTop: 26,
+    paddingVertical: 15,
+    borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: THEME,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  submitText: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  submitText: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });
 
 export default StaffShiftHandoverScreen;

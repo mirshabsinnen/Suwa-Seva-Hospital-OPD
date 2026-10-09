@@ -4,19 +4,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
 import { getDoctorDashboardStats, getDoctorNotes, createDoctorNote, deleteDoctorNote } from '../../services/doctorApi';
 import { useFocusEffect } from '@react-navigation/native';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { PulseView, FadeInUpView, HeartbeatDot } from '../../components/MedicalAnimations';
 
-// ── Light Theme with Glassmorphism ──
+// ── Medical Theme with Primary #005A71 and Clean White ──
 const T = {
-  bg:        '#f0f4f8',       // soft cool-white background
-  card:      'rgba(255,255,255,0.75)', // frosted glass card
-  cardBorder:'rgba(0,90,113,0.08)',
-  accent:    '#005A71',       // original teal accent
+  bg:        '#FFFFFF',       // clean crisp white background
+  surface:   '#F8FAFC',
+  card:      '#FFFFFF',
+  cardBorder:'#E2E8F0',
+  accent:    '#005A71',       // primary teal accent
   accentLight:'rgba(0,90,113,0.08)',
-  text:      '#1a2b3c',       // dark text
-  textDim:   '#7f8c8d',       // muted text
-  success:   '#22c55e',
-  danger:    '#ef4444',
-  headerBg:  '#005A71',       // original blue header
+  text:      '#0F2A38',       // dark clinical text
+  textDim:   '#64748B',       // muted text
+  success:   '#10B981',
+  danger:    '#EF4444',
+  headerBg:  '#005A71',       // primary teal header
 };
 
 const DoctorDashboardScreen = ({ navigation }) => {
@@ -115,7 +118,7 @@ const DoctorDashboardScreen = ({ navigation }) => {
         </View>
         <View style={s.headerCenter}>
           <View style={s.headerLogoCircle}>
-            <Ionicons name="medical" size={14} color="#fff" />
+            <HospitalSvgIcon size={16} color="#fff" />
           </View>
           <Text style={s.headerAppName}>SUWA SEVA</Text>
         </View>
@@ -133,8 +136,8 @@ const DoctorDashboardScreen = ({ navigation }) => {
         contentContainerStyle={s.body}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={T.accent} />}
       >
-        {/* ── Status Card (Glassmorphic Light) ── */}
-        <View style={s.statusCard}>
+        {/* ── Status Card (Clean Medical Card) ── */}
+        <FadeInUpView delay={100} duration={400} style={s.statusCard}>
           <View style={s.statusTop}>
             <View style={s.statusLeft}>
               <View style={s.statusIcon}>
@@ -145,14 +148,14 @@ const DoctorDashboardScreen = ({ navigation }) => {
                 <Text style={s.statusMeta}>General Medicine  •  Morning Shift</Text>
               </View>
             </View>
-            {/* ── Available / Unavailable Toggle ── */}
+            {/* ── Available / Unavailable Toggle with HeartbeatDot ── */}
             <TouchableOpacity 
               style={[s.availBtn, isAvailable ? s.availBtnOn : s.availBtnOff]}
               onPress={() => setIsAvailable(!isAvailable)}
               activeOpacity={0.7}
             >
-              <View style={[s.availDot, { backgroundColor: isAvailable ? T.success : T.danger }]} />
-              <Text style={[s.availText, { color: isAvailable ? T.success : T.danger }]}>
+              <HeartbeatDot color={isAvailable ? T.success : T.danger} size={7} />
+              <Text style={[s.availText, { color: isAvailable ? T.success : T.danger, marginLeft: 4 }]}>
                 {isAvailable ? 'Available' : 'Unavailable'}
               </Text>
             </TouchableOpacity>
@@ -186,16 +189,16 @@ const DoctorDashboardScreen = ({ navigation }) => {
               ))}
             </View>
           )}
-        </View>
+        </FadeInUpView>
 
         {/* ── Stats Grid ── */}
         <Text style={s.sectionTitle}>Today's Overview</Text>
-        <View style={s.statsGrid}>
+        <FadeInUpView delay={200} duration={400} style={s.statsGrid}>
           <StatCard num={stats?.totalAssigned || 0} label="Total" icon="clipboard-outline" color="#005A71" />
           <StatCard num={stats?.waiting || 0} label="Waiting" icon="hourglass-outline" color="#f59e0b" />
-          <StatCard num={stats?.serving || 0} label="In Progress" icon="pulse-outline" color="#22c55e" />
-          <StatCard num={stats?.completed || 0} label="Completed" icon="checkmark-done-outline" color="#8b5cf6" />
-        </View>
+          <StatCard num={stats?.serving || 0} label="In Progress" icon="pulse-outline" color="#10B981" />
+          <StatCard num={stats?.completed || 0} label="Completed" icon="checkmark-done-outline" color="#0284C7" />
+        </FadeInUpView>
 
         {/* ── Notes Section ── */}
         <Text style={s.sectionTitle}>Quick Notes</Text>
@@ -290,14 +293,14 @@ const s = StyleSheet.create({
 
   // ── Status Card ──
   statusCard: {
-    backgroundColor: T.card,
-    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
     padding: 18,
-    marginBottom: 24,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: T.cardBorder,
+    borderColor: '#E2E8F0',
     shadowColor: '#005A71', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06, shadowRadius: 16, elevation: 3,
+    shadowOpacity: 0.06, shadowRadius: 14, elevation: 3,
   },
   statusTop: {
     flexDirection: 'row',
@@ -424,18 +427,18 @@ const s = StyleSheet.create({
   // ── Stats Grid ──
   statsGrid: {
     flexDirection: 'row', flexWrap: 'wrap',
-    justifyContent: 'space-between', marginBottom: 24,
+    justifyContent: 'space-between', marginBottom: 20,
   },
   statCard: {
     width: '48%',
-    backgroundColor: T.card,
-    borderWidth: 1, borderColor: T.cardBorder,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1, borderColor: '#E2E8F0',
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     marginBottom: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+    shadowColor: '#005A71', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
   },
   statIconWrap: {
     width: 38, height: 38, borderRadius: 12,
@@ -445,19 +448,19 @@ const s = StyleSheet.create({
   statNumber: { fontSize: 28, fontWeight: '800', color: T.text },
   statLabel: { fontSize: 11, color: T.textDim, marginTop: 4, letterSpacing: 0.5 },
 
-  // ── Glass Card (Notes) ──
+  // ── Clean White Card (Notes) ──
   glassCard: {
-    backgroundColor: T.card,
-    borderWidth: 1, borderColor: T.cardBorder,
-    borderRadius: 16, padding: 16, marginBottom: 24,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1, borderColor: '#E2E8F0',
+    borderRadius: 16, padding: 16, marginBottom: 20,
+    shadowColor: '#005A71', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
   },
   addNoteRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   noteInput: {
     flex: 1,
-    backgroundColor: 'rgba(0,90,113,0.04)',
-    borderWidth: 1, borderColor: 'rgba(0,90,113,0.10)',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1, borderColor: '#E2E8F0',
     borderRadius: 10,
     paddingHorizontal: 14, paddingVertical: 10,
     marginRight: 10,
@@ -474,7 +477,7 @@ const s = StyleSheet.create({
   noteItem: {
     flexDirection: 'row', alignItems: 'center',
     paddingVertical: 10,
-    borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.04)',
+    borderTopWidth: 1, borderTopColor: '#F1F5F9',
   },
   noteDot: {
     width: 6, height: 6, borderRadius: 3,
@@ -487,11 +490,11 @@ const s = StyleSheet.create({
   // ── Quick Action ──
   actionCard: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: T.card,
-    borderWidth: 1, borderColor: T.cardBorder,
-    padding: 16, borderRadius: 16, marginBottom: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04, shadowRadius: 8, elevation: 2,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1, borderColor: '#E2E8F0',
+    padding: 16, borderRadius: 16, marginBottom: 16,
+    shadowColor: '#005A71', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
   },
   actionIcon: {
     width: 46, height: 46, borderRadius: 14,

@@ -7,6 +7,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../services/api';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { FadeInUpView } from '../../components/MedicalAnimations';
+
 // ─── Role options ─────────────────────────────────────────────────────────────
 const ROLES = [
   { label: 'Patient',                     value: 'patient',                    icon: 'person-outline',       color: '#005A71' },
@@ -114,7 +117,7 @@ const RegisterScreen = ({ navigation }) => {
           {/* ── Header ── */}
           <View style={styles.headerContainer}>
             <View style={styles.logoCircle}>
-              <Ionicons name="medical" size={36} color="#fff" />
+              <HospitalSvgIcon size={34} color="#fff" />
             </View>
             <Text style={styles.title}>Create Account</Text>
             <Text style={styles.subtitle}>Join Suwa Seva Health Portal</Text>

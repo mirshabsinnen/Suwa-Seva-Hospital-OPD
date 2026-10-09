@@ -15,8 +15,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { PulseView } from '../../components/MedicalAnimations';
 
-const THEME = '#0a3d62';
+const THEME = '#005A71';
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -86,7 +88,7 @@ const LoginScreen = ({ navigation }) => {
           {/* Logo & Branding */}
           <View style={styles.brandArea}>
             <View style={styles.logoCircle}>
-              <Ionicons name="medical" size={40} color="#fff" />
+              <HospitalSvgIcon size={38} color="#fff" />
             </View>
             <Text style={styles.appName}>Suwa Seva</Text>
             <Text style={styles.appTagline}>Hospital OPD Management</Text>
@@ -171,64 +173,65 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f0f4f8' },
-  scroll: { flexGrow: 1, paddingBottom: 40 },
+  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
+  scroll: { flexGrow: 1, paddingBottom: 40, backgroundColor: '#FFFFFF' },
 
   topDecor: { position: 'relative', height: 0 },
   decorCircle1: {
     position: 'absolute', top: -40, right: -60,
     width: 220, height: 220, borderRadius: 110,
-    backgroundColor: THEME + '12',
+    backgroundColor: 'rgba(0, 90, 113, 0.04)',
   },
   decorCircle2: {
     position: 'absolute', top: 60, right: 40,
     width: 100, height: 100, borderRadius: 50,
-    backgroundColor: THEME + '08',
+    backgroundColor: 'rgba(0, 90, 113, 0.06)',
   },
 
-  brandArea: { alignItems: 'center', paddingTop: 70, paddingBottom: 36 },
+  brandArea: { alignItems: 'center', paddingTop: 60, paddingBottom: 32 },
   logoCircle: {
-    width: 88, height: 88, borderRadius: 44,
+    width: 80, height: 80, borderRadius: 24,
     backgroundColor: THEME,
     justifyContent: 'center', alignItems: 'center',
-    marginBottom: 18,
+    marginBottom: 16,
     shadowColor: THEME,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.35,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  appName: { fontSize: 32, fontWeight: '900', color: THEME, letterSpacing: 0.5 },
-  appTagline: { fontSize: 14, color: '#7f8c8d', marginTop: 4, fontWeight: '500' },
+  appName: { fontSize: 30, fontWeight: '900', color: '#0F2A38', letterSpacing: 0.5 },
+  appTagline: { fontSize: 13, color: '#64748B', marginTop: 4, fontWeight: '500' },
 
   card: {
     marginHorizontal: 20,
-    backgroundColor: '#fff',
-    borderRadius: 28,
-    padding: 28,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     shadowColor: THEME,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
   },
-  cardTitle: { fontSize: 26, fontWeight: '800', color: '#1a2b3c', marginBottom: 4 },
-  cardSub: { fontSize: 14, color: '#95a5a6', marginBottom: 28, fontWeight: '500' },
+  cardTitle: { fontSize: 24, fontWeight: '800', color: '#0F2A38', marginBottom: 4 },
+  cardSub: { fontSize: 13, color: '#64748B', marginBottom: 24, fontWeight: '500' },
 
   inputGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#e2eaf2',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1.2,
+    borderColor: '#E2E8F0',
     marginBottom: 16,
     paddingHorizontal: 14,
-    transition: 'border-color 0.2s',
   },
   inputGroupFocused: {
     borderColor: THEME,
-    backgroundColor: '#f0f5fb',
+    backgroundColor: '#FFFFFF',
     shadowColor: THEME,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -236,31 +239,31 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   inputIcon: { marginRight: 10 },
-  input: { flex: 1, fontSize: 15, color: '#2c3e50', paddingVertical: 14 },
+  input: { flex: 1, fontSize: 15, color: '#0F2A38', paddingVertical: 14 },
   eyeBtn: { padding: 6 },
 
   loginBtn: {
     backgroundColor: THEME,
-    borderRadius: 16,
-    paddingVertical: 16,
+    borderRadius: 14,
+    paddingVertical: 15,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
     marginTop: 8,
     shadowColor: THEME,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  loginBtnText: { color: '#fff', fontSize: 17, fontWeight: '800', letterSpacing: 0.3 },
+  loginBtnText: { color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
 
   registerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 22 },
-  registerText: { color: '#7f8c8d', fontSize: 14 },
+  registerText: { color: '#64748B', fontSize: 14 },
   registerLink: { color: THEME, fontSize: 14, fontWeight: '700' },
 
-  footer: { textAlign: 'center', color: '#bdc3c7', fontSize: 12, marginTop: 28 },
+  footer: { textAlign: 'center', color: '#94A3B8', fontSize: 12, marginTop: 28 },
 });
 
 export default LoginScreen;

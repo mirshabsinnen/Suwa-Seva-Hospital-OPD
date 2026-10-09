@@ -185,12 +185,12 @@ const ConsultationNotesScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   toastContainer: {
     position: 'absolute',
     top: 50,
     right: 20,
-    backgroundColor: '#4caf50',
+    backgroundColor: '#059669',
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
@@ -201,34 +201,35 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     elevation: 5
   },
-  toastText: { color: '#fff', fontWeight: 'bold', marginLeft: 8 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { backgroundColor: '#005A71', padding: 20, paddingTop: 40, flexDirection: 'row', alignItems: 'center' },
-  backBtn: { marginRight: 15 },
-  headerTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
-  body: { padding: 15 },
-  patientInfo: { backgroundColor: '#e8f4f8', padding: 15, borderRadius: 8, marginBottom: 20, alignItems: 'center' },
-  patientName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  patientMeta: { fontSize: 14, color: '#666', marginTop: 4 },
-  completedBadge: { backgroundColor: '#4caf50', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginTop: 8 },
-  completedText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
-  label: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 8, marginTop: 10 },
+  toastText: { color: '#FFFFFF', fontWeight: '700', marginLeft: 8 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+  header: { backgroundColor: '#005A71', paddingHorizontal: 16, paddingVertical: 16, paddingTop: 44, flexDirection: 'row', alignItems: 'center' },
+  backBtn: { marginRight: 14 },
+  headerTitle: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
+  body: { padding: 16, backgroundColor: '#FFFFFF' },
+  patientInfo: { backgroundColor: '#F0F7F9', padding: 16, borderRadius: 12, marginBottom: 18, alignItems: 'center', borderWidth: 1, borderColor: '#D3E6ED' },
+  patientName: { fontSize: 17, fontWeight: '700', color: '#005A71' },
+  patientMeta: { fontSize: 13, color: '#688291', marginTop: 4 },
+  completedBadge: { backgroundColor: '#059669', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginTop: 8 },
+  completedText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700' },
+  label: { fontSize: 14, fontWeight: '700', color: '#005A71', marginBottom: 8, marginTop: 10, letterSpacing: 0.2 },
   input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E5ECF0',
+    borderRadius: 10,
     padding: 12,
     fontSize: 15,
     textAlignVertical: 'top',
-    marginBottom: 15
+    marginBottom: 14,
+    color: '#1B2C36'
   },
-  footer: { padding: 15, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee', flexDirection: 'row', justifyContent: 'space-between' },
-  btn: { flex: 1, padding: 15, borderRadius: 8, alignItems: 'center', marginHorizontal: 5 },
-  draftBtn: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#005A71' },
-  draftBtnText: { color: '#005A71', fontSize: 16, fontWeight: 'bold' },
-  completeBtn: { backgroundColor: '#005A71' },
-  completeBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  footer: { padding: 16, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#EBF1F4', flexDirection: 'row', justifyContent: 'space-between' },
+  btn: { flex: 1, paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginHorizontal: 5 },
+  draftBtn: { backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#005A71' },
+  draftBtnText: { color: '#005A71', fontSize: 15, fontWeight: '700' },
+  completeBtn: { backgroundColor: '#005A71', elevation: 2, shadowColor: '#005A71', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5 },
+  completeBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' }
 });
 
 export default ConsultationNotesScreen;

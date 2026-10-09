@@ -11,6 +11,10 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
 import { useToast } from '../../context/ToastContext';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { PulseView, HeartbeatDot } from '../../components/MedicalAnimations';
+
+const THEME = '#005A71';
 
 const StaffCallNextPatientScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -69,7 +73,7 @@ const StaffCallNextPatientScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0a3d62" />
+        <ActivityIndicator size="large" color="#005A71" />
         <Text style={styles.loadingText}>Finding next appropriate patient...</Text>
       </View>
     );
@@ -163,45 +167,45 @@ const StaffCallNextPatientScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f4f6f8', padding: 20, justifyContent: 'center' },
-  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  loadingText: { marginTop: 15, color: '#0a3d62', fontSize: 16, fontWeight: '500' },
-  errorText: { color: '#c0392b', fontSize: 16, marginBottom: 15 },
-  retryButton: { backgroundColor: '#0a3d62', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
+  container: { flex: 1, backgroundColor: '#FFFFFF', padding: 20, justifyContent: 'center' },
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20, backgroundColor: '#FFFFFF' },
+  loadingText: { marginTop: 15, color: THEME, fontSize: 16, fontWeight: '600' },
+  errorText: { color: '#EF4444', fontSize: 15, marginBottom: 15 },
+  retryButton: { backgroundColor: THEME, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 },
   retryButtonText: { color: '#fff', fontWeight: 'bold' },
   
-  emptyCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#d4edda', justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
-  emptyIcon: { color: '#155724', fontSize: 40, fontWeight: 'bold' },
-  emptyText: { fontSize: 18, color: '#2c3e50', marginBottom: 20, textAlign: 'center' },
+  emptyCircle: { width: 76, height: 76, borderRadius: 38, backgroundColor: '#ECFDF5', justifyContent: 'center', alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: '#A7F3D0' },
+  emptyIcon: { color: '#10B981', fontSize: 36, fontWeight: 'bold' },
+  emptyText: { fontSize: 18, color: '#0F2A38', marginBottom: 20, textAlign: 'center', fontWeight: '700' },
   
-  pageTitle: { fontSize: 24, fontWeight: 'bold', color: '#0a3d62', marginBottom: 20, textAlign: 'center' },
+  pageTitle: { fontSize: 24, fontWeight: '800', color: THEME, marginBottom: 20, textAlign: 'center' },
   
-  card: { backgroundColor: '#fff', borderRadius: 15, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 6, elevation: 5, overflow: 'hidden' },
-  cardHeader: { backgroundColor: '#0a3d62', padding: 15, alignItems: 'center' },
-  headerTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: THEME, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 4, overflow: 'hidden' },
+  cardHeader: { backgroundColor: THEME, padding: 16, alignItems: 'center' },
+  headerTitle: { color: '#fff', fontSize: 16, fontWeight: '700' },
   
-  cardBody: { padding: 20, alignItems: 'center' },
-  tokenCircle: { width: 120, height: 120, borderRadius: 60, backgroundColor: '#e8f4f8', justifyContent: 'center', alignItems: 'center', borderWidth: 4, borderColor: '#0a3d62', marginBottom: 15 },
-  tokenText: { fontSize: 36, fontWeight: 'bold', color: '#0a3d62' },
-  patientName: { fontSize: 22, fontWeight: 'bold', color: '#2c3e50', marginBottom: 20 },
+  cardBody: { padding: 22, alignItems: 'center' },
+  tokenCircle: { width: 110, height: 110, borderRadius: 55, backgroundColor: 'rgba(0, 90, 113, 0.06)', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: THEME, marginBottom: 15 },
+  tokenText: { fontSize: 36, fontWeight: '900', color: THEME },
+  patientName: { fontSize: 22, fontWeight: '800', color: '#0F2A38', marginBottom: 20 },
   
-  detailsBox: { width: '100%', backgroundColor: '#f8f9fa', padding: 15, borderRadius: 10, marginBottom: 20 },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 },
-  detailLabel: { fontSize: 15, color: '#7f8c8d' },
-  detailValue: { fontSize: 15, color: '#2c3e50', fontWeight: 'bold' },
-  urgentText: { color: '#c0392b' },
+  detailsBox: { width: '100%', backgroundColor: '#F8FAFC', padding: 16, borderRadius: 12, marginBottom: 20, borderWidth: 1, borderColor: '#E2E8F0' },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 4 },
+  detailLabel: { fontSize: 14, color: '#64748B' },
+  detailValue: { fontSize: 14, color: '#0F2A38', fontWeight: '700' },
+  urgentText: { color: '#EF4444' },
 
-  confirmationQuestion: { fontSize: 18, fontWeight: 'bold', color: '#e67e22', marginBottom: 20 },
+  confirmationQuestion: { fontSize: 17, fontWeight: '700', color: '#F59E0B', marginBottom: 20 },
 
-  primaryButton: { backgroundColor: '#27ae60', width: '100%', paddingVertical: 15, borderRadius: 10, alignItems: 'center', marginBottom: 15 },
-  primaryButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  primaryButton: { backgroundColor: '#10B981', width: '100%', paddingVertical: 15, borderRadius: 12, alignItems: 'center', marginBottom: 12, shadowColor: '#10B981', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.25, shadowRadius: 6, elevation: 4 },
+  primaryButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   disabledButton: { opacity: 0.7 },
   
-  cancelButton: { width: '100%', paddingVertical: 15, borderRadius: 10, alignItems: 'center' },
-  cancelButtonText: { color: '#7f8c8d', fontSize: 16, fontWeight: 'bold' },
+  cancelButton: { width: '100%', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+  cancelButtonText: { color: '#64748B', fontSize: 15, fontWeight: '600' },
   
-  secondaryButton: { backgroundColor: 'transparent', width: '100%', paddingVertical: 15, borderRadius: 10, alignItems: 'center', borderWidth: 2, borderColor: '#0a3d62' },
-  secondaryButtonText: { color: '#0a3d62', fontSize: 16, fontWeight: 'bold' }
+  secondaryButton: { backgroundColor: 'transparent', width: '100%', paddingVertical: 14, borderRadius: 12, alignItems: 'center', borderWidth: 1.5, borderColor: THEME },
+  secondaryButtonText: { color: THEME, fontSize: 15, fontWeight: '700' }
 });
 
 export default StaffCallNextPatientScreen;

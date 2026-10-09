@@ -9,7 +9,7 @@ import { Screen, EmptyState, Badge, number, minutes, statusLabel } from '../../c
 const PAGE_SIZE = 20;
 
 const C = {
-  primary: '#005A71', navy: '#0A3D62', bg: '#F4F7F9', text: '#0F2A3D', muted: '#64748B', border: '#E3EAEF',
+  primary: '#005A71', navy: '#005A71', bg: '#FFFFFF', text: '#0F2A3D', muted: '#64748B', border: '#E3EAEF',
   red: '#C62828', redSoft: '#FDECEC', amber: '#B45309', amberSoft: '#FFF4E0',
   green: '#2E7D32', greenSoft: '#E8F5E9', tealSoft: '#E3F2F5', blueSoft: '#E6EEF8',
 };

@@ -21,7 +21,7 @@ const StaffNavigator = () => {
       initialRouteName="StaffMainTabs"
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0a3d62', // Professional clinical blue
+          backgroundColor: '#005A71', // Primary Medical Teal
         },
         headerTintColor: '#fff',
         headerTitleStyle: {

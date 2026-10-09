@@ -6,8 +6,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { PulseView, HeartbeatDot } from '../../components/MedicalAnimations';
 
-const THEME = '#0a3d62';
+const THEME = '#005A71';
 
 const statusConfig = {
   waiting: { label: 'WAITING', color: '#e67e22', bg: '#fef6ee' },
@@ -174,73 +176,77 @@ const StaffTodayQueueScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f0f4f8' },
+  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
 
   header: {
     backgroundColor: THEME,
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
     paddingTop: 18,
-    paddingBottom: 24,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingBottom: 28,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
   headerTitle: { color: '#fff', fontSize: 22, fontWeight: '800' },
-  headerSub: { color: '#a0c4e0', fontSize: 13, marginTop: 4 },
+  headerSub: { color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 4 },
 
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
-    marginTop: -14,
+    marginTop: -16,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    shadowColor: '#0a3d62',
-    shadowOffset: { width: 0, height: 3 },
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: THEME,
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  searchInput: { flex: 1, fontSize: 14, color: '#2c3e50' },
+  searchInput: { flex: 1, fontSize: 14, color: '#0F2A38' },
 
   filtersRow: { flexDirection: 'row', paddingHorizontal: 16, marginTop: 14, marginBottom: 6 },
   chip: {
     paddingHorizontal: 14, paddingVertical: 7,
-    borderRadius: 20, backgroundColor: '#fff',
-    marginRight: 8, borderWidth: 1, borderColor: '#dde4ea',
+    borderRadius: 20, backgroundColor: '#FFFFFF',
+    marginRight: 8, borderWidth: 1, borderColor: '#E2E8F0',
   },
   chipActive: { backgroundColor: THEME, borderColor: THEME },
-  chipText: { fontSize: 12, color: '#7f8c8d', fontWeight: '600' },
+  chipText: { fontSize: 12, color: '#64748B', fontWeight: '600' },
   chipTextActive: { color: '#fff' },
 
-  list: { padding: 16, paddingBottom: 30 },
+  list: { padding: 16, paddingBottom: 30, backgroundColor: '#FFFFFF' },
 
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
-    shadowColor: '#0a3d62',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: THEME,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.05,
     shadowRadius: 6,
-    elevation: 3,
+    elevation: 2,
     borderLeftWidth: 3,
     borderLeftColor: 'transparent',
   },
-  cardPriority: { borderLeftColor: '#e74c3c', backgroundColor: '#fffbfb' },
+  cardPriority: { borderLeftColor: '#EF4444', backgroundColor: '#FFFDFD' },
   cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   tokenBadge: {
     paddingHorizontal: 10, paddingVertical: 8,
     borderRadius: 10, minWidth: 75, alignItems: 'center',
   },
   tokenText: { color: '#fff', fontSize: 13, fontWeight: '800', letterSpacing: 0.5 },
-  patientName: { fontSize: 15, fontWeight: '700', color: '#1a2b3c' },
-  positionText: { fontSize: 12, color: '#95a5a6', marginTop: 2 },
+  patientName: { fontSize: 15, fontWeight: '700', color: '#0F2A38' },
+  positionText: { fontSize: 12, color: '#64748B', marginTop: 2 },
   cardRight: { alignItems: 'flex-end', gap: 5 },
   prioBadge: {
     flexDirection: 'row', alignItems: 'center',
@@ -251,9 +257,9 @@ const styles = StyleSheet.create({
   statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
   statusText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
 
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 60 },
-  errorText: { color: '#7f8c8d', fontSize: 14, marginTop: 12, textAlign: 'center', paddingHorizontal: 30 },
-  emptyText: { color: '#95a5a6', fontSize: 15, marginTop: 12 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 60, backgroundColor: '#FFFFFF' },
+  errorText: { color: '#64748B', fontSize: 14, marginTop: 12, textAlign: 'center', paddingHorizontal: 30 },
+  emptyText: { color: '#64748B', fontSize: 15, marginTop: 12 },
   retryBtn: {
     marginTop: 16, backgroundColor: THEME,
     paddingHorizontal: 24, paddingVertical: 10, borderRadius: 20,

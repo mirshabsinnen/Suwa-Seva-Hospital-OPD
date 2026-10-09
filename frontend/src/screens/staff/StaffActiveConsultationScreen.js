@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { PulseView, HeartbeatDot } from '../../components/MedicalAnimations';
+
+const THEME = '#005A71';
 
 const StaffActiveConsultationScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -141,46 +145,46 @@ const StaffActiveConsultationScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f4f6f8' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   centerContainer: { padding: 20, alignItems: 'center' },
-  errorText: { color: '#c0392b', fontSize: 16 },
+  errorText: { color: '#EF4444', fontSize: 15 },
   
-  headerArea: { backgroundColor: '#0a3d62', padding: 20, paddingTop: 40, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, alignItems: 'center' },
-  pageTitle: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
-  pageSubtitle: { color: '#bdc3c7', fontSize: 14, marginTop: 5 },
+  headerArea: { backgroundColor: THEME, padding: 20, paddingTop: 36, paddingBottom: 28, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, alignItems: 'center' },
+  pageTitle: { color: '#fff', fontSize: 22, fontWeight: '800' },
+  pageSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 13, marginTop: 4 },
   
-  contentArea: { padding: 20 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#7f8c8d', marginBottom: 10, marginTop: 10 },
+  contentArea: { padding: 20, backgroundColor: '#FFFFFF' },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#0F2A38', marginBottom: 10, marginTop: 10 },
   
-  card: { backgroundColor: '#fff', borderRadius: 15, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 5, elevation: 3, marginBottom: 20 },
-  activeCard: { borderLeftWidth: 5, borderLeftColor: '#27ae60' },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: 20, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: THEME, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3, marginBottom: 20 },
+  activeCard: { borderLeftWidth: 4, borderLeftColor: '#10B981' },
   
-  emptyCard: { backgroundColor: '#ecf0f1', borderRadius: 15, padding: 30, alignItems: 'center', marginBottom: 20, borderStyle: 'dashed', borderWidth: 2, borderColor: '#bdc3c7' },
-  emptyCardText: { color: '#7f8c8d', fontSize: 16, fontStyle: 'italic' },
+  emptyCard: { backgroundColor: '#F8FAFC', borderRadius: 16, padding: 30, alignItems: 'center', marginBottom: 20, borderStyle: 'dashed', borderWidth: 1.5, borderColor: '#CBD5E1' },
+  emptyCardText: { color: '#64748B', fontSize: 15, fontStyle: 'italic' },
   
   activeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  activeToken: { fontSize: 40, fontWeight: 'bold', color: '#0a3d62' },
-  liveBadge: { backgroundColor: '#e74c3c', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 },
-  liveBadgeText: { color: '#fff', fontWeight: 'bold', fontSize: 12, letterSpacing: 1 },
+  activeToken: { fontSize: 38, fontWeight: '900', color: THEME },
+  liveBadge: { backgroundColor: '#EF4444', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 },
+  liveBadgeText: { color: '#fff', fontWeight: '800', fontSize: 11, letterSpacing: 1 },
   
-  patientName: { fontSize: 20, color: '#2c3e50', fontWeight: 'bold' },
-  patientNameSmall: { fontSize: 18, color: '#34495e', fontWeight: '500', marginBottom: 15 },
+  patientName: { fontSize: 20, color: '#0F2A38', fontWeight: '800' },
+  patientNameSmall: { fontSize: 17, color: '#0F2A38', fontWeight: '600', marginBottom: 15 },
   
-  divider: { height: 1, backgroundColor: '#ecf0f1', marginVertical: 15 },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 },
-  detailLabel: { fontSize: 15, color: '#7f8c8d' },
-  detailValue: { fontSize: 15, color: '#2c3e50', fontWeight: 'bold' },
+  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 14 },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 4 },
+  detailLabel: { fontSize: 14, color: '#64748B' },
+  detailValue: { fontSize: 14, color: '#0F2A38', fontWeight: '700' },
 
   nextHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 },
-  nextTokenText: { fontSize: 28, fontWeight: 'bold', color: '#f39c12' },
-  emergencyBadge: { backgroundColor: '#c0392b', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
-  emergencyText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  nextTokenText: { fontSize: 28, fontWeight: '900', color: '#F59E0B' },
+  emergencyBadge: { backgroundColor: '#EF4444', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  emergencyText: { color: '#fff', fontSize: 10, fontWeight: '800' },
   
-  actionButton: { backgroundColor: '#2980b9', paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
-  actionButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  actionButton: { backgroundColor: THEME, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+  actionButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
   
-  dashboardButton: { backgroundColor: 'transparent', paddingVertical: 15, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#0a3d62', marginTop: 10 },
-  dashboardButtonText: { color: '#0a3d62', fontSize: 16, fontWeight: 'bold' }
+  dashboardButton: { backgroundColor: 'transparent', paddingVertical: 14, borderRadius: 12, alignItems: 'center', borderWidth: 1.5, borderColor: THEME, marginTop: 10 },
+  dashboardButtonText: { color: THEME, fontSize: 15, fontWeight: '700' }
 });
 
 export default StaffActiveConsultationScreen;

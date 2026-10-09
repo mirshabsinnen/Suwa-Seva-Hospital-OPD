@@ -7,8 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
 import { useToast } from '../../context/ToastContext';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { PulseView, HeartbeatDot } from '../../components/MedicalAnimations';
 
-const THEME = '#0a3d62';
+const THEME = '#005A71';
 
 const StaffConfirmArrivalScreen = ({ route, navigation }) => {
   const { queueId } = route.params;
@@ -193,46 +195,50 @@ const StaffConfirmArrivalScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f0f4f8' },
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30 },
+  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
+  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#FFFFFF' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30, backgroundColor: '#FFFFFF' },
   loadingText: { marginTop: 12, color: THEME, fontSize: 15 },
-  errorText: { color: '#7f8c8d', fontSize: 14, marginTop: 12, textAlign: 'center' },
+  errorText: { color: '#64748B', fontSize: 14, marginTop: 12, textAlign: 'center' },
   retryBtn: { marginTop: 16, backgroundColor: THEME, paddingHorizontal: 24, paddingVertical: 10, borderRadius: 20 },
   retryText: { color: '#fff', fontWeight: '700' },
 
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 28,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     shadowColor: THEME,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
   },
 
   iconHeader: {
-    backgroundColor: '#e8f0f7',
-    paddingVertical: 28,
+    backgroundColor: 'rgba(0, 90, 113, 0.06)',
+    paddingVertical: 26,
     paddingHorizontal: 24,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#dde8f0',
+    borderBottomColor: '#E2E8F0',
   },
   iconCircle: {
-    width: 72, height: 72, borderRadius: 36,
-    backgroundColor: '#fff',
+    width: 68, height: 68, borderRadius: 34,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center', alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     shadowColor: THEME,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  cardTitle: { fontSize: 20, fontWeight: '800', color: '#1a2b3c', marginBottom: 6 },
-  cardSub: { fontSize: 13, color: '#7f8c8d', textAlign: 'center', lineHeight: 18 },
+  cardTitle: { fontSize: 20, fontWeight: '800', color: '#0F2A38', marginBottom: 4 },
+  cardSub: { fontSize: 13, color: '#64748B', textAlign: 'center', lineHeight: 18 },
 
   patientBox: { padding: 22 },
   tokenRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 10 },

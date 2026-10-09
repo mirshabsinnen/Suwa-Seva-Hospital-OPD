@@ -107,24 +107,24 @@ const AppointmentConfirmationScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  content: { flex: 1, padding: 15 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#EBF1F4' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#005A71' },
+  content: { flex: 1, padding: 16, backgroundColor: '#FFFFFF' },
   
-  summaryCard: { backgroundColor: '#fff', borderRadius: 16, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2, marginBottom: 20 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#005A71', marginBottom: 15 },
-  detailText: { fontSize: 15, color: '#333', marginBottom: 10 },
-  label: { fontWeight: 'bold', color: '#666' },
-  divider: { height: 1, backgroundColor: '#eee', marginVertical: 15 },
+  summaryCard: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 20, borderWidth: 1, borderColor: '#E5ECF0', shadowColor: '#005A71', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2, marginBottom: 16 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#005A71', marginBottom: 14 },
+  detailText: { fontSize: 15, color: '#1B2C36', marginBottom: 10, lineHeight: 22 },
+  label: { fontWeight: '700', color: '#688291' },
+  divider: { height: 1, backgroundColor: '#EBF1F4', marginVertical: 14 },
   
-  warningCard: { backgroundColor: '#eef6f9', borderRadius: 10, padding: 15, flexDirection: 'row', alignItems: 'center' },
-  warningText: { flex: 1, color: '#005A71', fontSize: 13, lineHeight: 20 },
+  warningCard: { backgroundColor: '#F0F7F9', borderRadius: 12, padding: 14, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#D3E6ED' },
+  warningText: { flex: 1, color: '#005A71', fontSize: 13, lineHeight: 19, fontWeight: '500' },
 
-  footer: { padding: 15, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee' },
-  confirmButton: { backgroundColor: '#005A71', padding: 15, borderRadius: 10, alignItems: 'center' },
-  confirmButtonDisabled: { backgroundColor: '#005A7180' },
-  confirmButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  footer: { padding: 16, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#EBF1F4' },
+  confirmButton: { backgroundColor: '#005A71', paddingVertical: 15, borderRadius: 12, alignItems: 'center', elevation: 2, shadowColor: '#005A71', shadowOpacity: 0.25, shadowOffset: { width: 0, height: 3 }, shadowRadius: 6 },
+  confirmButtonDisabled: { backgroundColor: '#B0C8D0', elevation: 0, shadowOpacity: 0 },
+  confirmButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
 
   toastContainer: {
     position: 'absolute',

@@ -13,6 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 import { AuthContext } from '../../context/AuthContext';
+import HospitalSvgIcon from '../HospitalSvgIcon';
+import { HeartbeatDot } from '../MedicalAnimations';
 
 
 /* =========================================================
@@ -21,7 +23,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 export const palette = {
   teal: '#005A71',
-  navy: '#0A3D62',
+  navy: '#005A71',
   blue: '#2797BC',
   sky: '#77C8ED',
 
@@ -391,9 +393,8 @@ export function Screen({
 
       <View style={ui.header}>
         <View style={ui.brandIcon}>
-          <Ionicons
-            name="medical"
-            size={23}
+          <HospitalSvgIcon
+            size={22}
             color="#FFFFFF"
           />
         </View>
@@ -420,7 +421,7 @@ export function Screen({
         >
           <Ionicons
             name="log-out-outline"
-            size={23}
+            size={22}
             color={palette.teal}
           />
         </TouchableOpacity>
@@ -568,10 +569,10 @@ export function Screen({
         =================================================== */}
 
         <View style={ui.footer}>
-          <View style={ui.liveDot} />
+          <HeartbeatDot color={palette.teal} size={7} />
 
-          <Text style={ui.footerText}>
-            Read-only monitoring • SuwaSeva HIO
+          <Text style={[ui.footerText, { marginLeft: 6 }]}>
+            Live monitoring • SuwaSeva HIO
           </Text>
         </View>
 
@@ -648,7 +649,7 @@ export const ui = StyleSheet.create({
   /* Main content */
 
   content: {
-    backgroundColor: '#F6F8FD',
+    backgroundColor: '#FFFFFF',
     padding: 18,
     gap: 16,
     paddingBottom: 32,

@@ -6,9 +6,11 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { FadeInUpView } from '../../components/MedicalAnimations';
 
-const THEME = '#0a3d62';
-const ACCENT = '#1a5f8a';
+const THEME = '#005A71';
+const ACCENT = '#005A71';
 
 const MOCK_NOTIFICATIONS = [
   { _id: '1', type: 'emergency', title: 'Emergency Alert', message: 'Token A1009-005 has been escalated to EMERGENCY. Immediate attention required.', time: '5 min ago', read: false },
@@ -105,11 +107,10 @@ const StaffNotificationsScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f0f4f8' },
-
+  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
   header: {
     backgroundColor: THEME,
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
     paddingTop: 20,
     paddingBottom: 25,
     flexDirection: 'row',
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
   },
   headerTitle: { color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: 0.5 },
-  headerSubtitle: { color: '#a0c4e0', fontSize: 13, marginTop: 4 },
+  headerSubtitle: { color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 4 },
   markAllBtn: {
     backgroundColor: 'rgba(255,255,255,0.15)',
     paddingHorizontal: 14,
@@ -130,20 +131,22 @@ const styles = StyleSheet.create({
   },
   markAllText: { color: '#fff', fontSize: 13, fontWeight: '600' },
 
-  listContainer: { padding: 16, paddingTop: 20 },
+  listContainer: { padding: 16, paddingTop: 20, backgroundColor: '#FFFFFF' },
   separator: { height: 10 },
 
   notifCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    shadowColor: '#0a3d62',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: THEME,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
+    shadowOpacity: 0.05,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 2,
   },
   unreadCard: {
     borderLeftWidth: 4,
@@ -160,13 +163,13 @@ const styles = StyleSheet.create({
   },
   notifContent: { flex: 1 },
   notifHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 },
-  notifTitle: { fontSize: 15, fontWeight: '700', color: '#1a2b3c', flex: 1 },
+  notifTitle: { fontSize: 15, fontWeight: '700', color: '#0F2A38', flex: 1 },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: THEME, marginLeft: 8, flexShrink: 0 },
-  notifMessage: { fontSize: 13, color: '#5a6a7a', lineHeight: 19, marginBottom: 6 },
-  notifTime: { fontSize: 12, color: '#95a5a6', fontWeight: '500' },
+  notifMessage: { fontSize: 13, color: '#64748B', lineHeight: 19, marginBottom: 6 },
+  notifTime: { fontSize: 12, color: '#94A3B8', fontWeight: '500' },
 
-  emptyContainer: { alignItems: 'center', paddingTop: 80 },
-  emptyText: { color: '#95a5a6', fontSize: 16, marginTop: 15, fontWeight: '500' },
+  emptyContainer: { alignItems: 'center', paddingTop: 80, backgroundColor: '#FFFFFF' },
+  emptyText: { color: '#64748B', fontSize: 16, marginTop: 15, fontWeight: '500' },
 });
 
 export default StaffNotificationsScreen;

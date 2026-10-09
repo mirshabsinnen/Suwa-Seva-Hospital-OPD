@@ -4,19 +4,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { getTodaysPatients, markPatientNoShow } from '../../services/doctorApi';
 import { useFocusEffect } from '@react-navigation/native';
 
-// ── Light Theme with Glassmorphism ──
+// ── Medical Clean Theme ──
 const T = {
-  bg:        '#f0f4f8',       
-  card:      'rgba(255,255,255,0.75)', 
-  cardBorder:'rgba(0,90,113,0.08)',
+  bg:        '#FFFFFF',       
+  card:      '#FFFFFF', 
+  cardBorder:'#E2E8F0',
   accent:    '#005A71',       
   accentLight:'rgba(0,90,113,0.08)',
-  text:      '#1a2b3c',       
-  textDim:   '#7f8c8d',       
-  success:   '#22c55e',
-  warning:   '#f59e0b',
-  danger:    '#ef4444',
-  muted:     '#94a3b8',
+  text:      '#0F2A38',       
+  textDim:   '#64748B',       
+  success:   '#10B981',
+  warning:   '#F59E0B',
+  danger:    '#EF4444',
+  muted:     '#94A3B8',
   headerBg:  '#005A71',       
 };
 

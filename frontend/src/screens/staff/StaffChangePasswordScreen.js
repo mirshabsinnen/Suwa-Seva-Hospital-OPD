@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, Keyb
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
 
-const THEME = '#0a3d62';
+const THEME = '#005A71';
 
 const StaffChangePasswordScreen = ({ navigation }) => {
   const { updatePassword } = React.useContext(AuthContext);
@@ -91,37 +92,38 @@ const StaffChangePasswordScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f0f4f8' },
-  container: { flex: 1 },
+  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   headerBox: {
     backgroundColor: THEME, alignItems: 'center',
-    paddingTop: 30, paddingBottom: 40,
-    borderBottomLeftRadius: 30, borderBottomRightRadius: 30,
+    paddingTop: 28, paddingBottom: 38,
+    borderBottomLeftRadius: 28, borderBottomRightRadius: 28,
   },
   iconCircle: {
-    width: 80, height: 80, borderRadius: 40, backgroundColor: '#fff',
-    justifyContent: 'center', alignItems: 'center', marginBottom: 15,
+    width: 76, height: 76, borderRadius: 38, backgroundColor: '#FFFFFF',
+    justifyContent: 'center', alignItems: 'center', marginBottom: 12,
+    shadowColor: THEME, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 4,
   },
-  headerText: { color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 5 },
-  subText: { color: '#a0c4e0', fontSize: 14 },
-  form: { padding: 20, marginTop: -15 },
+  headerText: { color: '#fff', fontSize: 20, fontWeight: '800', marginBottom: 4 },
+  subText: { color: 'rgba(255,255,255,0.85)', fontSize: 13 },
+  form: { padding: 20, marginTop: -15, backgroundColor: '#FFFFFF' },
   inputGroup: { marginBottom: 15 },
-  label: { fontSize: 13, fontWeight: '700', color: '#34495e', marginBottom: 8 },
+  label: { fontSize: 13, fontWeight: '700', color: '#0F2A38', marginBottom: 8 },
   inputWrapper: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#dde4ea',
+    backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0',
     paddingHorizontal: 15, height: 50,
   },
   icon: { marginRight: 10 },
-  input: { flex: 1, fontSize: 15, color: '#2c3e50' },
+  input: { flex: 1, fontSize: 15, color: '#0F2A38' },
   eyeBtn: { padding: 5 },
   saveBtn: {
     backgroundColor: THEME, borderRadius: 14,
-    height: 54, justifyContent: 'center', alignItems: 'center',
+    height: 52, justifyContent: 'center', alignItems: 'center',
     marginTop: 20, shadowColor: THEME, shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3, shadowRadius: 8, elevation: 5,
+    shadowOpacity: 0.25, shadowRadius: 8, elevation: 4,
   },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });
 
 export default StaffChangePasswordScreen;

@@ -4,17 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
 import { updateDoctorProfile } from '../../services/doctorApi';
 
-// ── Light Theme with Glassmorphism ──
+// ── Refined Medical Theme ──
 const T = {
-  bg:        '#f0f4f8',       
-  card:      'rgba(255,255,255,0.75)', 
-  cardBorder:'rgba(0,90,113,0.08)',
+  bg:        '#FFFFFF',       
+  card:      '#FFFFFF', 
+  cardBorder:'#E5ECF0',
   accent:    '#005A71',       
-  accentLight:'rgba(0,90,113,0.08)',
-  text:      '#1a2b3c',       
-  textDim:   '#7f8c8d',       
-  success:   '#22c55e',
-  danger:    '#ef4444',
+  accentLight:'#F0F7F9',
+  text:      '#1B2C36',       
+  textDim:   '#688291',       
+  success:   '#059669',
+  danger:    '#DC2626',
   headerBg:  '#005A71',       
 };
 

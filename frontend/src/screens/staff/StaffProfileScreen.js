@@ -4,8 +4,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { FadeInUpView } from '../../components/MedicalAnimations';
 
-const THEME = '#0a3d62';
+const THEME = '#005A71';
 
 const MenuItem = ({ icon, label, sub, onPress, danger }) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.85}>
@@ -99,15 +101,14 @@ const StaffProfileScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#f0f4f8' },
-
+  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
   header: {
     backgroundColor: THEME,
-    paddingTop: 30,
-    paddingBottom: 40,
+    paddingTop: 28,
+    paddingBottom: 38,
     alignItems: 'center',
-    borderBottomLeftRadius: 36,
-    borderBottomRightRadius: 36,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
   avatarCircle: {
     width: 88, height: 88, borderRadius: 44,
@@ -118,17 +119,17 @@ const styles = StyleSheet.create({
   },
   avatarImage: { width: 82, height: 82, borderRadius: 41 },
   avatarText: { color: '#fff', fontSize: 32, fontWeight: '900' },
-  name: { color: '#fff', fontSize: 22, fontWeight: '800', marginBottom: 8 },
+  name: { color: '#fff', fontSize: 22, fontWeight: '800', marginBottom: 6 },
   roleBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     backgroundColor: 'rgba(255,255,255,0.15)',
     paddingHorizontal: 14, paddingVertical: 5,
     borderRadius: 20, borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   roleText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  email: { color: '#a0c4e0', fontSize: 14 },
+  email: { color: 'rgba(255,255,255,0.85)', fontSize: 13 },
 
   infoRow: {
     flexDirection: 'row',
@@ -138,30 +139,32 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   infoCard: {
-    flex: 1, backgroundColor: '#fff',
-    borderRadius: 18, padding: 18,
+    flex: 1, backgroundColor: '#FFFFFF',
+    borderRadius: 16, padding: 16,
     alignItems: 'center', gap: 6,
+    borderWidth: 1, borderColor: '#E2E8F0',
     shadowColor: THEME, shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1, shadowRadius: 8, elevation: 4,
+    shadowOpacity: 0.08, shadowRadius: 8, elevation: 3,
   },
-  infoValue: { fontSize: 14, fontWeight: '700', color: '#1a2b3c', textAlign: 'center' },
-  infoLabel: { fontSize: 11, color: '#95a5a6', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  infoValue: { fontSize: 14, fontWeight: '700', color: '#0F2A38', textAlign: 'center' },
+  infoLabel: { fontSize: 11, color: '#64748B', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
 
   section: { paddingHorizontal: 20, marginTop: 18 },
-  sectionTitle: { fontSize: 12, fontWeight: '700', color: '#95a5a6', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 },
+  sectionTitle: { fontSize: 12, fontWeight: '700', color: '#64748B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 },
 
   menuItem: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16, padding: 14,
     flexDirection: 'row', alignItems: 'center',
     marginBottom: 8,
+    borderWidth: 1, borderColor: '#E2E8F0',
     shadowColor: THEME, shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 5, elevation: 2,
+    shadowOpacity: 0.04, shadowRadius: 5, elevation: 2,
   },
   menuIcon: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
   menuText: { flex: 1 },
-  menuLabel: { fontSize: 15, fontWeight: '700', color: '#1a2b3c' },
-  menuSub: { fontSize: 12, color: '#95a5a6', marginTop: 2 },
+  menuLabel: { fontSize: 15, fontWeight: '700', color: '#0F2A38' },
+  menuSub: { fontSize: 12, color: '#64748B', marginTop: 2 },
 });
 
 export default StaffProfileScreen;

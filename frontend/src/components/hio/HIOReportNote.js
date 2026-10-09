@@ -93,7 +93,7 @@ export default function HIOReportNote({ year, month }) {
 }
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#f0f4f8' }, form: { padding: 20, flexGrow: 1 },
-  title: { color: '#0A3D62', fontSize: 22, fontWeight: '700' }, label: { color: '#0A3D62', fontSize: 15, fontWeight: '600', marginTop: 20, marginBottom: 8 },
+  title: { color: '#005A71', fontSize: 22, fontWeight: '700' }, label: { color: '#005A71', fontSize: 15, fontWeight: '600', marginTop: 20, marginBottom: 8 },
   input: { minHeight: 170, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ccd8e0', borderRadius: 12, padding: 14, fontSize: 16, color: '#1a2b3c' },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 14 }, statuses: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   button: { backgroundColor: '#005A71', padding: 13, borderRadius: 10, alignItems: 'center', marginTop: 4 }, buttonText: { color: '#fff', fontWeight: '700' }, danger: { backgroundColor: '#b73535' },

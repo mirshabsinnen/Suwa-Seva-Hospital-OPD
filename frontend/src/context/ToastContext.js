@@ -5,10 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 const ToastContext = createContext(null);
 
 const TOAST_TYPES = {
-  success: { bg: '#1a8f5a', icon: 'checkmark-circle', border: '#0f6641' },
-  error:   { bg: '#c0392b', icon: 'close-circle',     border: '#962d22' },
-  warning: { bg: '#e67e22', icon: 'warning',           border: '#b96118' },
-  info:    { bg: '#0a3d62', icon: 'information-circle', border: '#072d47' },
+  success: { bg: '#059669', icon: 'checkmark-circle', border: '#047857' },
+  error:   { bg: '#DC2626', icon: 'close-circle',     border: '#B91C1C' },
+  warning: { bg: '#D97706', icon: 'warning',           border: '#B45309' },
+  info:    { bg: '#005A71', icon: 'information-circle', border: '#004558' },
 };
 
 let toastQueue = [];

@@ -193,23 +193,23 @@ const HospitalOPDSelectionScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  content: { flex: 1 },
-  contentContainer: { padding: 15, paddingBottom: 20 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#005A71', marginTop: 15, marginBottom: 10 },
-  listContainer: { marginBottom: 10 },
-  itemCard: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#e0e0e0' },
-  itemCardSelected: { borderColor: '#005A71', backgroundColor: '#eef6f9' },
-  itemTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 4 },
-  itemDesc: { fontSize: 13, color: '#666' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#EBF1F4' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#005A71' },
+  content: { flex: 1, backgroundColor: '#FFFFFF' },
+  contentContainer: { padding: 16, paddingBottom: 24 },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#005A71', marginTop: 14, marginBottom: 10, letterSpacing: 0.3 },
+  listContainer: { marginBottom: 12 },
+  itemCard: { backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, marginBottom: 10, borderWidth: 1.5, borderColor: '#E5ECF0' },
+  itemCardSelected: { borderColor: '#005A71', backgroundColor: '#F0F7F9' },
+  itemTitle: { fontSize: 16, fontWeight: '700', color: '#1B2C36', marginBottom: 4 },
+  itemDesc: { fontSize: 13, color: '#688291' },
   itemTextSelected: { color: '#005A71' },
-  emptyText: { color: '#666', fontStyle: 'italic', marginBottom: 20 },
-  footer: { padding: 15, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee' },
-  continueButton: { backgroundColor: '#005A71', padding: 15, borderRadius: 10, alignItems: 'center' },
-  continueButtonDisabled: { backgroundColor: '#005A7180' },
-  continueButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  emptyText: { color: '#688291', fontStyle: 'italic', marginBottom: 20 },
+  footer: { padding: 16, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#EBF1F4' },
+  continueButton: { backgroundColor: '#005A71', paddingVertical: 15, borderRadius: 12, alignItems: 'center', elevation: 2, shadowColor: '#005A71', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 3 }, shadowRadius: 6 },
+  continueButtonDisabled: { backgroundColor: '#B0C8D0', elevation: 0, shadowOpacity: 0 },
+  continueButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' }
 });
 
 export default HospitalOPDSelectionScreen;

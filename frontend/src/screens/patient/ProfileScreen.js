@@ -106,25 +106,25 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  scrollContent: { paddingBottom: 40 },
-  header: { padding: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee', alignItems: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  scrollContent: { paddingBottom: 40, backgroundColor: '#FFFFFF' },
+  header: { paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#EBF1F4', alignItems: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#005A71' },
   
-  avatarContainer: { alignItems: 'center', marginTop: 30, marginBottom: 20 },
-  avatar: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#005A71', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  roleText: { color: '#005A71', fontWeight: 'bold', fontSize: 14, letterSpacing: 1 },
+  avatarContainer: { alignItems: 'center', marginTop: 24, marginBottom: 16 },
+  avatar: { width: 90, height: 90, borderRadius: 45, backgroundColor: '#005A71', justifyContent: 'center', alignItems: 'center', marginBottom: 10, elevation: 3, shadowColor: '#005A71', shadowOpacity: 0.25, shadowOffset: { width: 0, height: 3 }, shadowRadius: 6 },
+  roleText: { color: '#005A71', fontWeight: '700', fontSize: 13, letterSpacing: 1 },
 
-  formContainer: { backgroundColor: '#fff', marginHorizontal: 20, borderRadius: 16, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
-  label: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8 },
-  input: { backgroundColor: '#f5f5f5', padding: 15, borderRadius: 10, marginBottom: 15, fontSize: 15, borderWidth: 1, borderColor: '#e0e0e0' },
+  formContainer: { backgroundColor: '#FFFFFF', marginHorizontal: 16, borderRadius: 14, padding: 20, borderWidth: 1, borderColor: '#E5ECF0', shadowColor: '#005A71', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 },
+  label: { fontSize: 13, fontWeight: '700', color: '#005A71', marginBottom: 8, letterSpacing: 0.3 },
+  input: { backgroundColor: '#FFFFFF', paddingHorizontal: 14, paddingVertical: 13, borderRadius: 10, marginBottom: 16, fontSize: 15, borderWidth: 1.5, borderColor: '#E5ECF0', color: '#1B2C36' },
   
-  updateBtn: { backgroundColor: '#005A71', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-  disabledBtn: { backgroundColor: '#005A7180' },
-  updateText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  updateBtn: { backgroundColor: '#005A71', paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginTop: 10, elevation: 2, shadowColor: '#005A71', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 2 }, shadowRadius: 5 },
+  disabledBtn: { backgroundColor: '#B0C8D0', elevation: 0, shadowOpacity: 0 },
+  updateText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
 
-  logoutBtn: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 30 },
-  logoutText: { color: '#d9534f', fontSize: 16, fontWeight: 'bold' }
+  logoutBtn: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 26, paddingVertical: 10 },
+  logoutText: { color: '#DC2626', fontSize: 15, fontWeight: '700' }
 });
 
 export default ProfileScreen;

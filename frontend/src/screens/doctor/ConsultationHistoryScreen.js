@@ -4,19 +4,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { getConsultationHistory, deleteConsultationDraft } from '../../services/doctorApi';
 import { useFocusEffect } from '@react-navigation/native';
 
-// ── Light Theme with Glassmorphism ──
+// ── Refined Medical Theme ──
 const T = {
-  bg:        '#f0f4f8',       
-  card:      'rgba(255,255,255,0.75)', 
-  cardBorder:'rgba(0,90,113,0.08)',
+  bg:        '#FFFFFF',       
+  card:      '#FFFFFF', 
+  cardBorder:'#E5ECF0',
   accent:    '#005A71',       
-  accentLight:'rgba(0,90,113,0.08)',
-  text:      '#1a2b3c',       
-  textDim:   '#7f8c8d',       
-  success:   '#22c55e',
-  warning:   '#f59e0b',
-  danger:    '#ef4444',
-  muted:     '#94a3b8',
+  accentLight:'#F0F7F9',
+  text:      '#1B2C36',       
+  textDim:   '#688291',       
+  success:   '#059669',
+  warning:   '#D97706',
+  danger:    '#DC2626',
+  muted:     '#9AAEC0',
   headerBg:  '#005A71',       
 };
 

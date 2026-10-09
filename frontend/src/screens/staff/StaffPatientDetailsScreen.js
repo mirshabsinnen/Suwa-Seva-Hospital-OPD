@@ -12,6 +12,10 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
 import { useToast } from '../../context/ToastContext';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { PulseView, HeartbeatDot } from '../../components/MedicalAnimations';
+
+const THEME = '#005A71';
 
 const StaffPatientDetailsScreen = ({ route, navigation }) => {
   const { queueId } = route.params;
@@ -73,7 +77,7 @@ const StaffPatientDetailsScreen = ({ route, navigation }) => {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0a3d62" />
+        <ActivityIndicator size="large" color="#005A71" />
         <Text style={styles.loadingText}>Fetching patient details...</Text>
       </View>
     );
@@ -202,70 +206,72 @@ const StaffPatientDetailsScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f4f6f8' },
-  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 10, color: '#555', fontSize: 16 },
-  errorText: { color: '#c0392b', fontSize: 16, marginBottom: 15, textAlign: 'center', paddingHorizontal: 20 },
-  retryButton: { backgroundColor: '#0a3d62', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+  loadingText: { marginTop: 10, color: '#0F2A38', fontSize: 15 },
+  errorText: { color: '#EF4444', fontSize: 15, marginBottom: 15, textAlign: 'center', paddingHorizontal: 20 },
+  retryButton: { backgroundColor: THEME, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 },
   retryButtonText: { color: '#fff', fontWeight: 'bold' },
   
   headerCard: {
-    backgroundColor: '#0a3d62',
-    padding: 30,
+    backgroundColor: THEME,
+    padding: 28,
     alignItems: 'center',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: THEME,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 6,
   },
-  headerTitle: { color: '#bdc3c7', fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 },
-  tokenNumber: { color: '#fff', fontSize: 48, fontWeight: 'bold', marginVertical: 10 },
-  statusBadge: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 15, paddingVertical: 5, borderRadius: 20 },
-  statusBadgeText: { color: '#fff', fontSize: 14, fontWeight: 'bold', letterSpacing: 1 },
+  headerTitle: { color: 'rgba(255,255,255,0.8)', fontSize: 13, textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600' },
+  tokenNumber: { color: '#fff', fontSize: 46, fontWeight: '900', marginVertical: 8 },
+  statusBadge: { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20 },
+  statusBadgeText: { color: '#fff', fontSize: 13, fontWeight: '800', letterSpacing: 1 },
 
   infoCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
-    borderRadius: 15,
+    borderRadius: 16,
     padding: 20,
-    shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: THEME,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 3,
+    shadowRadius: 8,
     elevation: 2,
     marginBottom: 20,
   },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#2c3e50', marginBottom: 15 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0F2A38', marginBottom: 15 },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 8 },
-  infoLabel: { color: '#7f8c8d', fontSize: 15 },
-  infoValue: { color: '#2c3e50', fontSize: 15, fontWeight: '500' },
-  highlightValue: { color: '#0a3d62', fontSize: 18, fontWeight: 'bold' },
-  priorityText: { color: '#c0392b', fontWeight: 'bold' },
-  arrivedText: { color: '#27ae60', fontWeight: 'bold' },
-  divider: { height: 1, backgroundColor: '#ecf0f1', marginVertical: 10 },
+  infoLabel: { color: '#64748B', fontSize: 14 },
+  infoValue: { color: '#0F2A38', fontSize: 14, fontWeight: '600' },
+  highlightValue: { color: THEME, fontSize: 17, fontWeight: '800' },
+  priorityText: { color: '#EF4444', fontWeight: 'bold' },
+  arrivedText: { color: '#10B981', fontWeight: 'bold' },
+  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 10 },
 
   actionsContainer: { marginHorizontal: 20 },
   actionButton: {
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: 15,
+    borderRadius: 14,
     alignItems: 'center',
-    marginBottom: 15,
-    shadowColor: '#000',
+    marginBottom: 14,
+    shadowColor: THEME,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 6,
     elevation: 3,
   },
-  primaryButton: { backgroundColor: '#2980b9' },
-  callButton: { backgroundColor: '#27ae60' },
-  secondaryButton: { backgroundColor: '#e67e22' },
-  outlineButton: { backgroundColor: 'transparent', borderWidth: 2, borderColor: '#7f8c8d', shadowOpacity: 0, elevation: 0 },
-  actionButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  outlineButtonText: { color: '#7f8c8d', fontSize: 16, fontWeight: 'bold' },
+  primaryButton: { backgroundColor: THEME },
+  callButton: { backgroundColor: '#10B981' },
+  secondaryButton: { backgroundColor: '#F59E0B' },
+  outlineButton: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: THEME, shadowOpacity: 0, elevation: 0 },
+  actionButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  outlineButtonText: { color: THEME, fontSize: 15, fontWeight: '700' },
   
   spacer: { height: 40 }
 });

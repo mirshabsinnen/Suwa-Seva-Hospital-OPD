@@ -9,7 +9,7 @@ import StaffShiftHandoverScreen from '../screens/staff/StaffShiftHandoverScreen'
 import StaffProfileScreen from '../screens/staff/StaffProfileScreen';
 
 const Tab = createBottomTabNavigator();
-const THEME = '#0a3d62';
+const THEME = '#005A71';
 
 const TabIcon = ({ name, focused, color, badge }) => (
   <View style={{ alignItems: 'center' }}>
@@ -40,20 +40,19 @@ const StaffTabNavigator = () => {
           return <TabIcon name={icons[route.name]} focused={focused} color={color} badge={badge} />;
         },
         tabBarActiveTintColor: THEME,
-        tabBarInactiveTintColor: '#95a5a6',
+        tabBarInactiveTintColor: '#7F93A3',
         tabBarStyle: {
-          height: 68,
+          height: 66,
           paddingBottom: 10,
           paddingTop: 8,
           backgroundColor: '#ffffff',
-          borderTopWidth: 0,
-          shadowColor: '#0a3d62',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 12,
-          elevation: 12,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
+          borderTopWidth: 1,
+          borderTopColor: '#E8ECEF',
+          shadowColor: '#005A71',
+          shadowOffset: { width: 0, height: -3 },
+          shadowOpacity: 0.08,
+          shadowRadius: 10,
+          elevation: 10,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '700', marginTop: 2 },
       })}
@@ -68,7 +67,7 @@ const StaffTabNavigator = () => {
 
 const tabStyles = StyleSheet.create({
   activeIcon: {
-    backgroundColor: '#e8f0f7',
+    backgroundColor: 'rgba(0, 90, 113, 0.10)',
     borderRadius: 10,
     padding: 4,
   },

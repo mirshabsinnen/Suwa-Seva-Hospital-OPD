@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ActivityIndicat
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
 import { useFocusEffect } from '@react-navigation/native';
+import { PulseView, HeartbeatDot } from '../../components/MedicalAnimations';
 
 const LiveQueueScreen = ({ navigation }) => {
   const [appointments, setAppointments] = useState([]);
@@ -66,7 +67,7 @@ const LiveQueueScreen = ({ navigation }) => {
   if (!queueData) {
     return (
       <SafeAreaView style={styles.center}>
-        <Ionicons name="people-circle-outline" size={80} color="#ccc" />
+        <Ionicons name="people-circle-outline" size={76} color="#B0C8D0" />
         <Text style={styles.emptyText}>You don't have any active queue right now.</Text>
       </SafeAreaView>
     );
@@ -76,9 +77,13 @@ const LiveQueueScreen = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Live Queue Tracking</Text>
+        <View style={styles.liveIndicator}>
+          <HeartbeatDot color="#10B981" size={8} />
+          <Text style={styles.liveIndicatorText}>LIVE</Text>
+        </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
         <View style={styles.topCard}>
           <View style={styles.hospitalInfo}>
@@ -88,7 +93,7 @@ const LiveQueueScreen = ({ navigation }) => {
           
           {queueData.priority && queueData.priority !== 'Normal' && (
             <View style={[styles.priorityBanner, queueData.priority === 'Emergency' ? styles.emergencyBg : styles.priorityBg]}>
-              <Ionicons name="alert-circle" size={20} color={queueData.priority === 'Emergency' ? '#fff' : '#000'} />
+              <Ionicons name="alert-circle" size={18} color={queueData.priority === 'Emergency' ? '#FFFFFF' : '#8A5300'} />
               <Text style={[styles.priorityText, queueData.priority === 'Emergency' ? styles.emergencyText : styles.priorityNormalText]}>
                 QUEUE STATUS: {queueData.priority.toUpperCase()}
               </Text>
@@ -102,31 +107,32 @@ const LiveQueueScreen = ({ navigation }) => {
             </View>
             <View style={styles.servingBox}>
               <Text style={styles.tokenLabel}>CURRENTLY SERVING</Text>
-              <Text style={styles.servingTokenNum}>{queueData.currentServingToken}</Text>
+              <PulseView duration={2200}>
+                <Text style={styles.servingTokenNum}>{queueData.currentServingToken}</Text>
+              </PulseView>
             </View>
           </View>
         </View>
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Ionicons name="people" size={32} color="#005A71" />
+            <Ionicons name="people" size={28} color="#005A71" />
             <Text style={styles.statValue}>{queueData.patientsAhead}</Text>
-            <Text style={styles.statLabel}>Your Position (Ahead)</Text>
+            <Text style={styles.statLabel}>Patients Ahead</Text>
           </View>
           <View style={styles.statCard}>
-            <Ionicons name="time" size={32} color="#e67e22" />
-            <Text style={[styles.statValue, { color: '#e67e22' }]}>{queueData.estimatedWaitingTime} min</Text>
-            <Text style={styles.statLabel}>Estimated Wait Time</Text>
+            <Ionicons name="time-outline" size={28} color="#005A71" />
+            <Text style={styles.statValue}>{queueData.estimatedWaitingTime} min</Text>
+            <Text style={styles.statLabel}>Estimated Wait</Text>
           </View>
         </View>
 
         <View style={styles.progressContainer}>
           <Text style={styles.progressTitle}>Queue Progress</Text>
           <View style={styles.progressBar}>
-            {/* Simple Mock Progress Bar */}
             <View style={[styles.progressFill, { width: queueData.patientsAhead < 5 ? '80%' : '40%' }]} />
           </View>
-          <Text style={styles.progressText}>Please be near the OPD waiting area.</Text>
+          <Text style={styles.progressText}>Please remain near the OPD waiting area.</Text>
         </View>
 
       </ScrollView>
@@ -135,42 +141,44 @@ const LiveQueueScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyText: { marginTop: 15, fontSize: 16, color: '#666', textAlign: 'center', paddingHorizontal: 40 },
-  header: { padding: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee', alignItems: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  content: { padding: 20 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+  emptyText: { marginTop: 14, fontSize: 15, color: '#688291', textAlign: 'center', paddingHorizontal: 40 },
+  header: { paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#EBF1F4', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#005A71' },
+  liveIndicator: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ECFDF5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, gap: 6 },
+  liveIndicatorText: { fontSize: 11, fontWeight: '700', color: '#059669', letterSpacing: 0.5 },
+  content: { padding: 16, backgroundColor: '#FFFFFF' },
   
-  topCard: { backgroundColor: '#fff', borderRadius: 16, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 5, elevation: 3, marginBottom: 20 },
-  hospitalInfo: { alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 15 },
-  hospitalName: { fontSize: 18, fontWeight: 'bold', color: '#005A71', textAlign: 'center' },
-  opdName: { fontSize: 14, color: '#666', marginTop: 4 },
+  topCard: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 20, borderWidth: 1, borderColor: '#E5ECF0', shadowColor: '#005A71', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2, marginBottom: 14 },
+  hospitalInfo: { alignItems: 'center', marginBottom: 16, borderBottomWidth: 1, borderBottomColor: '#EBF1F4', paddingBottom: 14 },
+  hospitalName: { fontSize: 17, fontWeight: '700', color: '#005A71', textAlign: 'center' },
+  opdName: { fontSize: 13, color: '#688291', marginTop: 4 },
   
-  priorityBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10, borderRadius: 8, marginBottom: 15 },
-  emergencyBg: { backgroundColor: '#dc3545' },
-  priorityBg: { backgroundColor: '#ffc107' },
-  priorityText: { marginLeft: 8, fontWeight: 'bold', letterSpacing: 1 },
-  emergencyText: { color: '#fff' },
-  priorityNormalText: { color: '#000' },
+  priorityBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 10, borderRadius: 10, marginBottom: 14 },
+  emergencyBg: { backgroundColor: '#DC2626' },
+  priorityBg: { backgroundColor: '#FEF3C7', borderWidth: 1, borderColor: '#FDE68A' },
+  priorityText: { marginLeft: 6, fontWeight: '700', letterSpacing: 0.5, fontSize: 12 },
+  emergencyText: { color: '#FFFFFF' },
+  priorityNormalText: { color: '#8A5300' },
   
   tokenDisplayRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  tokenBox: { flex: 1, alignItems: 'center', borderRightWidth: 1, borderRightColor: '#eee' },
+  tokenBox: { flex: 1, alignItems: 'center', borderRightWidth: 1, borderRightColor: '#EBF1F4' },
   servingBox: { flex: 1, alignItems: 'center' },
-  tokenLabel: { fontSize: 10, fontWeight: 'bold', color: '#888', marginBottom: 8, letterSpacing: 1 },
-  myTokenNum: { fontSize: 32, fontWeight: 'bold', color: '#005A71' },
-  servingTokenNum: { fontSize: 32, fontWeight: 'bold', color: '#28a745' },
+  tokenLabel: { fontSize: 10, fontWeight: '700', color: '#688291', marginBottom: 8, letterSpacing: 0.8 },
+  myTokenNum: { fontSize: 32, fontWeight: '800', color: '#005A71' },
+  servingTokenNum: { fontSize: 32, fontWeight: '800', color: '#059669' },
 
-  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  statCard: { width: '48%', backgroundColor: '#fff', borderRadius: 16, padding: 20, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 },
-  statValue: { fontSize: 28, fontWeight: 'bold', color: '#005A71', marginVertical: 10 },
-  statLabel: { fontSize: 12, color: '#666', textAlign: 'center' },
+  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 },
+  statCard: { width: '48%', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 18, alignItems: 'center', borderWidth: 1, borderColor: '#E5ECF0', shadowColor: '#005A71', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 5, elevation: 1 },
+  statValue: { fontSize: 24, fontWeight: '800', color: '#005A71', marginVertical: 8 },
+  statLabel: { fontSize: 12, color: '#688291', textAlign: 'center', fontWeight: '500' },
   
-  progressContainer: { backgroundColor: '#fff', borderRadius: 16, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 },
-  progressTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 15 },
-  progressBar: { height: 10, backgroundColor: '#eee', borderRadius: 5, overflow: 'hidden', marginBottom: 15 },
-  progressFill: { height: '100%', backgroundColor: '#005A71', borderRadius: 5 },
-  progressText: { fontSize: 13, color: '#666', textAlign: 'center', fontStyle: 'italic' }
+  progressContainer: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 18, borderWidth: 1, borderColor: '#E5ECF0', shadowColor: '#005A71', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 5, elevation: 1 },
+  progressTitle: { fontSize: 15, fontWeight: '700', color: '#1B2C36', marginBottom: 12 },
+  progressBar: { height: 8, backgroundColor: '#E5ECF0', borderRadius: 4, overflow: 'hidden', marginBottom: 10 },
+  progressFill: { height: '100%', backgroundColor: '#005A71', borderRadius: 4 },
+  progressText: { fontSize: 12, color: '#688291', textAlign: 'center' }
 });
 
 export default LiveQueueScreen;

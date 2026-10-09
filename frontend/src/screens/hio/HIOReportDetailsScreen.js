@@ -9,9 +9,9 @@ import { Screen, EmptyState, number, minutes, percentage } from '../../component
 import { LineChart } from '../../components/hio/HIOCharts';
 
 const C = {
-  primary: '#005A71', navy: '#0A3D62', bg: '#F4F7F9', text: '#0F2A3D', muted: '#64748B', border: '#E3EAEF',
+  primary: '#005A71', navy: '#005A71', bg: '#FFFFFF', text: '#0F2A3D', muted: '#64748B', border: '#E3EAEF',
   red: '#C62828', redSoft: '#FDECEC', amber: '#B45309', amberSoft: '#FFF4E0',
-  green: '#2E7D32', greenSoft: '#E8F5E9', blue: '#2797BC', tealSoft: '#E3F2F5', blueSoft: '#E6EEF8',
+  green: '#2E7D32', greenSoft: '#E8F5E9', blue: '#005A71', tealSoft: '#E3F2F5', blueSoft: '#E6EEF8',
 };
 
 const APPOINTMENT_STATUSES = [

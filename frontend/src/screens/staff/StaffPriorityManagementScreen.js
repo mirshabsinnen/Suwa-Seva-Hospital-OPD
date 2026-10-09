@@ -10,6 +10,10 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import staffApi from '../../services/staffApi';
 import { useToast } from '../../context/ToastContext';
+import HospitalSvgIcon from '../../components/HospitalSvgIcon';
+import { PulseView, HeartbeatDot } from '../../components/MedicalAnimations';
+
+const THEME = '#005A71';
 
 const StaffPriorityManagementScreen = ({ route, navigation }) => {
   const { queueId } = route.params;
@@ -68,7 +72,7 @@ const StaffPriorityManagementScreen = ({ route, navigation }) => {
   if (loading || !queueData) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0a3d62" />
+        <ActivityIndicator size="large" color="#005A71" />
         <Text style={styles.loadingText}>Loading queue position...</Text>
       </View>
     );
@@ -153,37 +157,48 @@ const StaffPriorityManagementScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f4f6f8', padding: 20 },
-  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { marginTop: 10, color: '#555' },
+  container: { flex: 1, backgroundColor: '#FFFFFF', padding: 20 },
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+  loadingText: { marginTop: 10, color: '#0F2A38' },
   
-  pageTitle: { fontSize: 24, fontWeight: 'bold', color: '#0a3d62', marginBottom: 5 },
-  disclaimerText: { fontSize: 12, color: '#7f8c8d', fontStyle: 'italic', marginBottom: 20 },
+  pageTitle: { fontSize: 22, fontWeight: '800', color: THEME, marginBottom: 4 },
+  disclaimerText: { fontSize: 12, color: '#64748B', fontStyle: 'italic', marginBottom: 20 },
   
-  card: { backgroundColor: '#fff', borderRadius: 15, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
-  patientInfo: { borderBottomWidth: 1, borderBottomColor: '#ecf0f1', paddingBottom: 15, marginBottom: 20 },
-  label: { fontSize: 14, color: '#7f8c8d' },
-  value: { fontSize: 18, color: '#2c3e50', fontWeight: 'bold', marginBottom: 10 },
-  tokenValue: { fontSize: 28, color: '#0a3d62', fontWeight: 'bold' },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: THEME,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  patientInfo: { borderBottomWidth: 1, borderBottomColor: '#F1F5F9', paddingBottom: 15, marginBottom: 20 },
+  label: { fontSize: 13, color: '#64748B', fontWeight: '500' },
+  value: { fontSize: 17, color: '#0F2A38', fontWeight: '700', marginBottom: 10 },
+  tokenValue: { fontSize: 30, color: THEME, fontWeight: '900' },
   
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#34495e', marginBottom: 15 },
-  priorityOptions: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 25 },
-  optionButton: { flex: 1, paddingVertical: 12, borderWidth: 1, borderColor: '#bdc3c7', borderRadius: 8, alignItems: 'center', marginHorizontal: 4 },
-  optionSelected: { backgroundColor: '#f39c12', borderColor: '#f39c12' },
-  emergencySelected: { backgroundColor: '#e74c3c', borderColor: '#e74c3c' },
-  optionText: { color: '#7f8c8d', fontWeight: 'bold' },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#0F2A38', marginBottom: 14 },
+  priorityOptions: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 22 },
+  optionButton: { flex: 1, paddingVertical: 12, borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, alignItems: 'center', marginHorizontal: 4, backgroundColor: '#F8FAFC' },
+  optionSelected: { backgroundColor: '#F59E0B', borderColor: '#F59E0B' },
+  emergencySelected: { backgroundColor: '#EF4444', borderColor: '#EF4444' },
+  optionText: { color: '#64748B', fontWeight: '700', fontSize: 13 },
   optionTextSelected: { color: '#fff' },
   
-  previewBox: { backgroundColor: '#e8f4f8', borderRadius: 10, padding: 15, marginBottom: 20, borderWidth: 1, borderColor: '#b6dce8' },
-  previewTitle: { fontSize: 16, fontWeight: 'bold', color: '#0a3d62', marginBottom: 10, textAlign: 'center' },
-  previewRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 5 },
-  previewLabel: { fontSize: 15, color: '#34495e' },
-  previewOldValue: { fontSize: 18, color: '#7f8c8d', textDecorationLine: 'line-through' },
-  previewNewValue: { fontSize: 24, color: '#27ae60', fontWeight: 'bold' },
+  previewBox: { backgroundColor: 'rgba(0, 90, 113, 0.06)', borderRadius: 12, padding: 16, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(0, 90, 113, 0.15)' },
+  previewTitle: { fontSize: 15, fontWeight: '700', color: THEME, marginBottom: 10, textAlign: 'center' },
+  previewRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 4 },
+  previewLabel: { fontSize: 14, color: '#0F2A38' },
+  previewOldValue: { fontSize: 16, color: '#94A3B8', textDecorationLine: 'line-through' },
+  previewNewValue: { fontSize: 22, color: '#10B981', fontWeight: '800' },
 
-  confirmButton: { backgroundColor: '#27ae60', paddingVertical: 16, borderRadius: 10, alignItems: 'center' },
+  confirmButton: { backgroundColor: '#10B981', paddingVertical: 15, borderRadius: 12, alignItems: 'center', shadowColor: '#10B981', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.25, shadowRadius: 6, elevation: 4 },
   disabledButton: { opacity: 0.7 },
-  confirmButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  confirmButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' }
 });
 
 export default StaffPriorityManagementScreen;

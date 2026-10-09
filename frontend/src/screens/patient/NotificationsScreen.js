@@ -90,22 +90,22 @@ const NotificationsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  header: { padding: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee', alignItems: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyText: { marginTop: 10, fontSize: 16, color: '#666' },
-  listContainer: { padding: 15 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  header: { paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#EBF1F4', alignItems: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#005A71' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
+  emptyText: { marginTop: 12, fontSize: 15, color: '#688291' },
+  listContainer: { padding: 16, backgroundColor: '#FFFFFF' },
 
-  notificationCard: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 12, padding: 15, marginBottom: 15, alignItems: 'center' },
-  unreadCard: { backgroundColor: '#eef6f9', borderWidth: 1, borderColor: '#d0e5ed' },
-  iconContainer: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+  notificationCard: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, marginBottom: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E5ECF0', shadowColor: '#005A71', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
+  unreadCard: { backgroundColor: '#F0F7F9', borderWidth: 1.5, borderColor: '#005A71' },
+  iconContainer: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#E5ECF0', justifyContent: 'center', alignItems: 'center', marginRight: 14 },
   contentContainer: { flex: 1 },
-  title: { fontSize: 15, color: '#333', marginBottom: 4 },
-  unreadTitle: { fontWeight: 'bold', color: '#005A71' },
-  message: { fontSize: 13, color: '#555', marginBottom: 8 },
-  time: { fontSize: 11, color: '#999' },
-  unreadDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#e67e22', marginLeft: 10 }
+  title: { fontSize: 15, color: '#1B2C36', marginBottom: 4, fontWeight: '600' },
+  unreadTitle: { fontWeight: '700', color: '#005A71' },
+  message: { fontSize: 13, color: '#4B6271', marginBottom: 6, lineHeight: 18 },
+  time: { fontSize: 11, color: '#8DA3B0' },
+  unreadDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#005A71', marginLeft: 10 }
 });
 
 export default NotificationsScreen;

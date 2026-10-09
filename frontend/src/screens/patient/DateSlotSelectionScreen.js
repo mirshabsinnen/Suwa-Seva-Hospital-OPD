@@ -133,31 +133,31 @@ const DateSlotSelectionScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  content: { flex: 1, padding: 15 },
-  infoText: { fontSize: 14, color: '#555', marginBottom: 5 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#005A71', marginTop: 20, marginBottom: 15 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#EBF1F4' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#005A71' },
+  content: { flex: 1, padding: 16, backgroundColor: '#FFFFFF' },
+  infoText: { fontSize: 14, color: '#688291', marginBottom: 6 },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#005A71', marginTop: 18, marginBottom: 12, letterSpacing: 0.3 },
   
   dateContainer: { flexDirection: 'row', marginBottom: 20 },
-  dateCard: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginRight: 10, borderWidth: 1, borderColor: '#e0e0e0', minWidth: 100, alignItems: 'center' },
-  dateCardSelected: { borderColor: '#005A71', backgroundColor: '#eef6f9' },
-  dateText: { fontSize: 14, color: '#333', fontWeight: 'bold' },
+  dateCard: { backgroundColor: '#FFFFFF', padding: 14, borderRadius: 12, marginRight: 10, borderWidth: 1.5, borderColor: '#E5ECF0', minWidth: 100, alignItems: 'center' },
+  dateCardSelected: { borderColor: '#005A71', backgroundColor: '#F0F7F9' },
+  dateText: { fontSize: 14, color: '#1B2C36', fontWeight: '700' },
   dateTextSelected: { color: '#005A71' },
 
   slotGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  slotCard: { width: '48%', backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#e0e0e0', alignItems: 'center' },
-  slotCardUnavailable: { backgroundColor: '#f5f5f5', borderColor: '#e0e0e0' },
-  slotCardSelected: { borderColor: '#005A71', backgroundColor: '#eef6f9' },
-  slotText: { fontSize: 14, color: '#333', fontWeight: 'bold' },
-  slotTextUnavailable: { color: '#aaa' },
+  slotCard: { width: '48%', backgroundColor: '#FFFFFF', paddingVertical: 14, paddingHorizontal: 12, borderRadius: 12, marginBottom: 12, borderWidth: 1.5, borderColor: '#E5ECF0', alignItems: 'center' },
+  slotCardUnavailable: { backgroundColor: '#F7FAFC', borderColor: '#EEF2F5', opacity: 0.6 },
+  slotCardSelected: { borderColor: '#005A71', backgroundColor: '#F0F7F9' },
+  slotText: { fontSize: 14, color: '#1B2C36', fontWeight: '700' },
+  slotTextUnavailable: { color: '#9AAEC0' },
   slotTextSelected: { color: '#005A71' },
 
-  footer: { padding: 15, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee' },
-  continueButton: { backgroundColor: '#005A71', padding: 15, borderRadius: 10, alignItems: 'center' },
-  continueButtonDisabled: { backgroundColor: '#005A7180' },
-  continueButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  footer: { padding: 16, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#EBF1F4' },
+  continueButton: { backgroundColor: '#005A71', paddingVertical: 15, borderRadius: 12, alignItems: 'center', elevation: 2, shadowColor: '#005A71', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 3 }, shadowRadius: 6 },
+  continueButtonDisabled: { backgroundColor: '#B0C8D0', elevation: 0, shadowOpacity: 0 },
+  continueButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' }
 });
 
 export default DateSlotSelectionScreen;
