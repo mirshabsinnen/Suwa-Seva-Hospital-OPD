@@ -4,8 +4,18 @@ import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
 
 const AppointmentConfirmationScreen = ({ route, navigation }) => {
-  const { hospital, opd, date, time } = route.params;
+  const { hospital, opd, doctor, date, time } = route.params;
   const [loading, setLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+  const [toastType, setToastType] = useState('success'); // 'success' or 'error'
+
+  const showToast = (msg, type = 'success') => {
+    setToastMessage(msg);
+    setToastType(type);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  };
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -13,19 +23,25 @@ const AppointmentConfirmationScreen = ({ route, navigation }) => {
       const response = await api.post('/appointments', {
         hospitalId: hospital._id,
         opdId: opd._id,
+        doctorId: doctor?._id || null,
         appointmentDate: date,
         appointmentTime: time
       });
 
-      navigation.reset({
-        index: 1,
-        routes: [
-          { name: 'Main' },
-          { name: 'QueueToken', params: { appointment: response.data.appointment, queueToken: response.data.queueToken, queueId: response.data.queueId } }
-        ],
-      });
+      showToast('Appointment Confirmed Successfully!', 'success');
+      
+      setTimeout(() => {
+        navigation.reset({
+          index: 1,
+          routes: [
+            { name: 'Main' },
+            { name: 'QueueToken', params: { appointment: response.data.appointment, queueToken: response.data.queueToken, queueId: response.data.queueId } }
+          ],
+        });
+      }, 1500); // Give time for toast to be seen
     } catch (error) {
-      Alert.alert('Booking Failed', error.response?.data?.message || 'Something went wrong');
+      const errorMsg = error.response?.data?.message || error.message || 'Something went wrong';
+      showToast('Booking Failed: ' + errorMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -51,6 +67,7 @@ const AppointmentConfirmationScreen = ({ route, navigation }) => {
           <Text style={styles.sectionTitle}>Hospital Information</Text>
           <Text style={styles.detailText}><Text style={styles.label}>Hospital: </Text>{hospital.name}</Text>
           <Text style={styles.detailText}><Text style={styles.label}>OPD: </Text>{opd.name}</Text>
+          <Text style={styles.detailText}><Text style={styles.label}>Doctor: </Text>Dr. {doctor.fullName}</Text>
           
           <View style={styles.divider} />
           
@@ -78,6 +95,13 @@ const AppointmentConfirmationScreen = ({ route, navigation }) => {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Top Right Toast Message */}
+      {toastMessage && (
+        <View style={[styles.toastContainer, toastType === 'error' ? styles.toastError : styles.toastSuccess]}>
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -100,7 +124,33 @@ const styles = StyleSheet.create({
   footer: { padding: 15, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee' },
   confirmButton: { backgroundColor: '#005A71', padding: 15, borderRadius: 10, alignItems: 'center' },
   confirmButtonDisabled: { backgroundColor: '#005A7180' },
-  confirmButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  confirmButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+
+  toastContainer: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    zIndex: 9999,
+  },
+  toastSuccess: {
+    backgroundColor: '#28a745',
+  },
+  toastError: {
+    backgroundColor: '#dc3545',
+  },
+  toastText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  }
 });
 
 export default AppointmentConfirmationScreen;

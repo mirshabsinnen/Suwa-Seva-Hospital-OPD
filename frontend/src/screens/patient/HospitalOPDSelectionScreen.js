@@ -6,12 +6,15 @@ import { Ionicons } from '@expo/vector-icons';
 const HospitalOPDSelectionScreen = ({ navigation }) => {
   const [hospitals, setHospitals] = useState([]);
   const [opds, setOpds] = useState([]);
+  const [doctors, setDoctors] = useState([]);
   
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [selectedOpd, setSelectedOpd] = useState(null);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
   
   const [loadingHospitals, setLoadingHospitals] = useState(true);
   const [loadingOpds, setLoadingOpds] = useState(false);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
 
   useEffect(() => {
     fetchHospitals();
@@ -44,20 +47,40 @@ const HospitalOPDSelectionScreen = ({ navigation }) => {
   const handleHospitalSelect = (hospital) => {
     setSelectedHospital(hospital);
     setSelectedOpd(null); // Reset OPD selection
+    setSelectedDoctor(null); // Reset Doctor selection
+    setDoctors([]);
     fetchOpds(hospital._id);
+  };
+
+  const fetchDoctors = async (opdId) => {
+    try {
+      setLoadingDoctors(true);
+      const res = await api.get(`/users/doctors/opd/${opdId}`);
+      setDoctors(res.data);
+    } catch (error) {
+      Alert.alert('Error', 'Unable to load doctors');
+    } finally {
+      setLoadingDoctors(false);
+    }
   };
 
   const handleOpdSelect = (opd) => {
     setSelectedOpd(opd);
+    setSelectedDoctor(null);
+    fetchDoctors(opd._id);
+  };
+
+  const handleDoctorSelect = (doctor) => {
+    setSelectedDoctor(doctor);
   };
 
   const handleContinue = () => {
-    if (!selectedHospital || !selectedOpd) {
-      Alert.alert('Selection Required', 'Please select both a hospital and an OPD');
+    if (!selectedHospital || !selectedOpd || !selectedDoctor) {
+      Alert.alert('Selection Required', 'Please select a hospital, an OPD, and a doctor');
       return;
     }
     // Navigate to next screen
-    navigation.navigate('DateSlotSelection', { hospital: selectedHospital, opd: selectedOpd });
+    navigation.navigate('DateSlotSelection', { hospital: selectedHospital, opd: selectedOpd, doctor: selectedDoctor });
   };
 
   return (
@@ -82,20 +105,24 @@ const HospitalOPDSelectionScreen = ({ navigation }) => {
           <ActivityIndicator color="#005A71" style={{ marginVertical: 20 }} />
         ) : (
           <View style={styles.listContainer}>
-            {hospitals.map(hospital => (
-              <TouchableOpacity
-                key={hospital._id}
-                style={[styles.itemCard, selectedHospital?._id === hospital._id && styles.itemCardSelected]}
-                onPress={() => handleHospitalSelect(hospital)}
-              >
-                <Text style={[styles.itemTitle, selectedHospital?._id === hospital._id && styles.itemTextSelected]}>
-                  {hospital.name}
-                </Text>
-                <Text style={[styles.itemDesc, selectedHospital?._id === hospital._id && styles.itemTextSelected]}>
-                  {hospital.location}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {hospitals.length === 0 ? (
+              <Text style={styles.emptyText}>No hospitals available at the moment. Please ensure you are logged in.</Text>
+            ) : (
+              hospitals.map(hospital => (
+                <TouchableOpacity
+                  key={hospital._id}
+                  style={[styles.itemCard, selectedHospital?._id === hospital._id && styles.itemCardSelected]}
+                  onPress={() => handleHospitalSelect(hospital)}
+                >
+                  <Text style={[styles.itemTitle, selectedHospital?._id === hospital._id && styles.itemTextSelected]}>
+                    {hospital.name}
+                  </Text>
+                  <Text style={[styles.itemDesc, selectedHospital?._id === hospital._id && styles.itemTextSelected]}>
+                    {hospital.location}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            )}
           </View>
         )}
 
@@ -124,12 +151,38 @@ const HospitalOPDSelectionScreen = ({ navigation }) => {
             )}
           </>
         )}
+
+        {/* Doctor Selection */}
+        {selectedOpd && (
+          <>
+            <Text style={styles.sectionTitle}>3. Select Doctor</Text>
+            {loadingDoctors ? (
+              <ActivityIndicator color="#005A71" style={{ marginVertical: 20 }} />
+            ) : doctors.length === 0 ? (
+              <Text style={styles.emptyText}>No doctors available for this OPD.</Text>
+            ) : (
+              <View style={styles.listContainer}>
+                {doctors.map(doctor => (
+                  <TouchableOpacity
+                    key={doctor._id}
+                    style={[styles.itemCard, selectedDoctor?._id === doctor._id && styles.itemCardSelected]}
+                    onPress={() => handleDoctorSelect(doctor)}
+                  >
+                    <Text style={[styles.itemTitle, selectedDoctor?._id === doctor._id && styles.itemTextSelected]}>
+                      Dr. {doctor.fullName}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </>
+        )}
       </ScrollView>
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.continueButton, (!selectedHospital || !selectedOpd) && styles.continueButtonDisabled]}
-          disabled={!selectedHospital || !selectedOpd}
+          style={[styles.continueButton, (!selectedHospital || !selectedOpd || !selectedDoctor) && styles.continueButtonDisabled]}
+          disabled={!selectedHospital || !selectedOpd || !selectedDoctor}
           onPress={handleContinue}
         >
           <Text style={styles.continueButtonText}>Continue</Text>

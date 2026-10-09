@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Ale
 import { Ionicons } from '@expo/vector-icons';
 
 const DateSlotSelectionScreen = ({ route, navigation }) => {
-  const { hospital, opd } = route.params;
+  const { hospital, opd, doctor } = route.params;
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -49,6 +49,7 @@ const DateSlotSelectionScreen = ({ route, navigation }) => {
     navigation.navigate('AppointmentConfirmation', {
       hospital,
       opd,
+      doctor,
       date: selectedDate,
       time: selectedSlot.time
     });
@@ -72,6 +73,7 @@ const DateSlotSelectionScreen = ({ route, navigation }) => {
       <ScrollView style={styles.content}>
         <Text style={styles.infoText}>Hospital: {hospital.name}</Text>
         <Text style={styles.infoText}>OPD: {opd.name}</Text>
+        <Text style={styles.infoText}>Doctor: Dr. {doctor.fullName}</Text>
 
         <Text style={styles.sectionTitle}>Select Date</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dateContainer}>

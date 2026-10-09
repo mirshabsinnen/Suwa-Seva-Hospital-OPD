@@ -6,7 +6,7 @@ const Queue = require('../models/Queue');
 // @access  Private
 exports.createAppointment = async (req, res) => {
   try {
-    const { hospitalId, opdId, appointmentDate, appointmentTime } = req.body;
+    const { hospitalId, opdId, doctorId, appointmentDate, appointmentTime } = req.body;
     
     // Check if slot is already taken by this patient
     const existing = await Appointment.findOne({
@@ -24,6 +24,7 @@ exports.createAppointment = async (req, res) => {
       patientId: req.user._id,
       hospitalId,
       opdId,
+      doctorId: doctorId || null,
       appointmentDate: new Date(appointmentDate),
       appointmentTime,
       status: 'confirmed'
@@ -62,6 +63,7 @@ exports.getPatientAppointments = async (req, res) => {
     const appointments = await Appointment.find({ patientId: req.user._id })
       .populate('hospitalId', 'name location')
       .populate('opdId', 'name')
+      .populate('doctorId', 'fullName')
       .sort({ appointmentDate: -1 });
     res.json(appointments);
   } catch (error) {
@@ -89,6 +91,21 @@ exports.updateAppointment = async (req, res) => {
     appointment.status = req.body.status || 'rescheduled';
 
     const updatedAppointment = await appointment.save();
+
+    // Update the existing queue for this appointment
+    const queue = await Queue.findOne({ appointmentId: req.params.id });
+    if (queue && req.body.appointmentDate) {
+      const dateStr = new Date(req.body.appointmentDate).toISOString().split('T')[0].replace(/-/g, '').slice(-4);
+      const count = await Queue.countDocuments({ 
+        createdAt: { $gte: new Date().setHours(0,0,0,0) } 
+      });
+      queue.tokenNumber = `A${dateStr}-${(count + 1).toString().padStart(3, '0')}`;
+      queue.status = 'waiting';
+      queue.arrivalStatus = 'Not Arrived';
+      queue.queuePosition = count + 1;
+      await queue.save();
+    }
+
     res.json(updatedAppointment);
   } catch (error) {
     res.status(500).json({ message: error.message || 'Server error' });
