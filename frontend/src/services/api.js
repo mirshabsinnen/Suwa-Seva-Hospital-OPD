@@ -1,13 +1,26 @@
 import axios from 'axios';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 import storage from './storage';
 
-// IMPORTANT: For Android emulator use 10.0.2.2 or your machine's IP address.
-// For physical devices, use your computer's local IP (e.g., 192.168.1.10)
-// For web browser, use localhost
-export const API_URL = 'http://localhost:5002/api';
+// LAN follows Metro's current host; USB uses localhost with port 5002 reversed.
+// A tunnel only forwards Metro, so it requires an explicit reachable backend URL.
+const metroHost = Constants.expoConfig?.hostUri?.split(':')[0];
+const apiHost = Platform.OS === 'web' ? window.location.hostname : metroHost;
+const configuredUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
+export const API_URL = configuredUrl
+  ? configuredUrl.replace(/\/+$/, '')
+  : apiHost && !apiHost.endsWith('.exp.direct')
+    ? `http://${apiHost}:5002/api`
+    : null;
+
+if (!API_URL) {
+  throw new Error('Set EXPO_PUBLIC_API_URL to a reachable backend URL, or start Expo using LAN/USB.');
+}
 
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 15000,
 });
 
 // Request interceptor: always attach JWT token from storage before each request
