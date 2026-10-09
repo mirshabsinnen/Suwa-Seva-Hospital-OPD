@@ -21,7 +21,7 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.userName}>{userInfo?.fullName || 'Patient'}</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.notificationIcon}>
+          <TouchableOpacity style={styles.notificationIcon} onPress={() => navigation.navigate('AlertsTab')}>
             <Ionicons name="notifications-outline" size={24} color="#005A71" />
             <View style={styles.badge} />
           </TouchableOpacity>

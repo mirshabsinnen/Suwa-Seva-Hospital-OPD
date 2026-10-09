@@ -45,6 +45,14 @@ exports.createAppointment = async (req, res) => {
       estimatedWaitingTime: (count + 1) * 15 // Assuming 15 min per patient
     });
 
+    const Notification = require('../models/Notification');
+    await Notification.create({
+      userId: req.user._id,
+      title: 'Appointment Confirmed',
+      message: `Your appointment has been confirmed for ${new Date(appointmentDate).toDateString()} at ${appointmentTime}. Token: ${tokenNumber}`,
+      type: 'appointment_change'
+    });
+
     res.status(201).json({
       appointment,
       queueToken: queue.tokenNumber,
@@ -104,6 +112,16 @@ exports.updateAppointment = async (req, res) => {
       queue.arrivalStatus = 'Not Arrived';
       queue.queuePosition = count + 1;
       await queue.save();
+    }
+
+    if (req.body.status && (req.body.status === 'completed' || req.body.status === 'confirmed')) {
+      const Notification = require('../models/Notification');
+      await Notification.create({
+        userId: appointment.patientId,
+        title: `Appointment ${req.body.status.charAt(0).toUpperCase() + req.body.status.slice(1)}`,
+        message: `Your appointment on ${new Date(appointment.appointmentDate).toDateString()} at ${appointment.appointmentTime} has been ${req.body.status}.`,
+        type: 'appointment_change'
+      });
     }
 
     res.json(updatedAppointment);

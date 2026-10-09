@@ -29,6 +29,10 @@ exports.updateUserProfile = async (req, res) => {
       user.email = req.body.email || user.email;
       user.phone = req.body.phone || user.phone;
 
+      if (req.body.password) {
+        user.password = req.body.password;
+      }
+
       // Note: Role is intentionally not updated here as per requirements
 
       const updatedUser = await user.save();
