@@ -1,16 +1,17 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Suwa Seva",
+    "slug": "suwa-seva",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "suwaseva",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.mirshab.suwaseva",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
