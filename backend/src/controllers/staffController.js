@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Queue = require('../models/Queue');
 const Appointment = require('../models/Appointment');
 const StaffHandover = require('../models/StaffHandover');
@@ -96,6 +97,10 @@ exports.getTodayQueue = async (req, res) => {
 
 exports.getQueuePatient = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.queueId)) {
+      return res.status(400).json({ success: false, message: 'Invalid queue ID format' });
+    }
+
     const queue = await Queue.findById(req.params.queueId).populate('patientId', 'fullName phone');
     if (!queue) {
       return res.status(404).json({ success: false, message: 'Queue record not found' });
@@ -110,6 +115,10 @@ exports.getQueuePatient = async (req, res) => {
 
 exports.updateArrivalStatus = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.queueId)) {
+      return res.status(400).json({ success: false, message: 'Invalid queue ID format' });
+    }
+
     const queue = await Queue.findById(req.params.queueId);
     if (!queue) {
       return res.status(404).json({ success: false, message: 'Queue record not found' });
@@ -133,10 +142,14 @@ exports.updateArrivalStatus = async (req, res) => {
 
 exports.updatePriority = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.queueId)) {
+      return res.status(400).json({ success: false, message: 'Invalid queue ID format' });
+    }
+
     const { priority } = req.body;
     const validPriorities = ['Normal', 'Priority', 'Emergency'];
-    if (!validPriorities.includes(priority)) {
-      return res.status(400).json({ success: false, message: 'Invalid priority' });
+    if (!priority || !validPriorities.includes(priority)) {
+      return res.status(400).json({ success: false, message: 'Priority must be one of: Normal, Priority, Emergency' });
     }
 
     const queue = await Queue.findById(req.params.queueId);
@@ -198,6 +211,10 @@ exports.getNextPatient = async (req, res) => {
 
 exports.callPatient = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.queueId)) {
+      return res.status(400).json({ success: false, message: 'Invalid queue ID format' });
+    }
+
     const queue = await Queue.findById(req.params.queueId);
     if (!queue) {
       return res.status(404).json({ success: false, message: 'Queue record not found' });
@@ -250,9 +267,53 @@ exports.getActivePatient = async (req, res) => {
 // ==========================================
 exports.createHandover = async (req, res) => {
   try {
-    req.body.createdBy = req.user ? req.user.id : null;
-    const handover = await StaffHandover.create(req.body);
-    res.status(201).json({ success: true, data: handover, message: 'Handover created' });
+    const { shift, opd, currentToken, numberWaiting, numberPriority, notes } = req.body;
+
+    const validShifts = ['Morning', 'Evening', 'Night'];
+    if (!shift || !validShifts.includes(shift)) {
+      return res.status(400).json({ success: false, message: 'Shift is required and must be Morning, Evening, or Night' });
+    }
+
+    if (!opd || typeof opd !== 'string' || !opd.trim()) {
+      return res.status(400).json({ success: false, message: 'OPD / Department is required' });
+    }
+
+    if (!currentToken || typeof currentToken !== 'string' || !currentToken.trim()) {
+      return res.status(400).json({ success: false, message: 'Currently serving token is required' });
+    }
+
+    const waitingNum = Number(numberWaiting);
+    if (isNaN(waitingNum) || waitingNum < 0 || !Number.isInteger(waitingNum)) {
+      return res.status(400).json({ success: false, message: 'Patients waiting must be a non-negative whole number' });
+    }
+
+    const priorityNum = Number(numberPriority);
+    if (isNaN(priorityNum) || priorityNum < 0 || !Number.isInteger(priorityNum)) {
+      return res.status(400).json({ success: false, message: 'Priority waiting must be a non-negative whole number' });
+    }
+
+    if (priorityNum > waitingNum) {
+      return res.status(400).json({ success: false, message: 'Priority waiting cannot exceed total waiting patients' });
+    }
+
+    if (!notes || typeof notes !== 'string' || notes.trim().length < 3) {
+      return res.status(400).json({ success: false, message: 'Handover remarks/notes must be at least 3 characters long' });
+    }
+
+    const handoverData = {
+      shift,
+      opd: opd.trim(),
+      currentToken: currentToken.trim().toUpperCase(),
+      numberWaiting: waitingNum,
+      numberPriority: priorityNum,
+      notes: notes.trim(),
+      createdBy: req.user ? req.user.id : null
+    };
+
+    const handover = await StaffHandover.create(handoverData);
+    const populated = await StaffHandover.findById(handover._id).populate('createdBy', 'fullName role');
+
+    res.status(201).json({ success: true, data: populated || handover, message: 'Handover created' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -260,7 +321,7 @@ exports.createHandover = async (req, res) => {
 
 exports.getHandovers = async (req, res) => {
   try {
-    const handovers = await StaffHandover.find().sort({ createdAt: -1 });
+    const handovers = await StaffHandover.find().sort({ createdAt: -1 }).populate('createdBy', 'fullName role');
     res.status(200).json({ success: true, data: handovers });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error' });
@@ -269,12 +330,71 @@ exports.getHandovers = async (req, res) => {
 
 exports.updateHandover = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid handover ID format' });
+    }
+
+    const { shift, opd, currentToken, numberWaiting, numberPriority, notes } = req.body;
+
+    const updates = {};
+
+    if (shift !== undefined) {
+      const validShifts = ['Morning', 'Evening', 'Night'];
+      if (!validShifts.includes(shift)) {
+        return res.status(400).json({ success: false, message: 'Shift must be Morning, Evening, or Night' });
+      }
+      updates.shift = shift;
+    }
+
+    if (opd !== undefined) {
+      if (typeof opd !== 'string' || !opd.trim()) {
+        return res.status(400).json({ success: false, message: 'OPD / Department cannot be empty' });
+      }
+      updates.opd = opd.trim();
+    }
+
+    if (currentToken !== undefined) {
+      if (typeof currentToken !== 'string' || !currentToken.trim()) {
+        return res.status(400).json({ success: false, message: 'Currently serving token cannot be empty' });
+      }
+      updates.currentToken = currentToken.trim().toUpperCase();
+    }
+
+    if (numberWaiting !== undefined) {
+      const waitingNum = Number(numberWaiting);
+      if (isNaN(waitingNum) || waitingNum < 0 || !Number.isInteger(waitingNum)) {
+        return res.status(400).json({ success: false, message: 'Patients waiting must be a non-negative whole number' });
+      }
+      updates.numberWaiting = waitingNum;
+    }
+
+    if (numberPriority !== undefined) {
+      const priorityNum = Number(numberPriority);
+      if (isNaN(priorityNum) || priorityNum < 0 || !Number.isInteger(priorityNum)) {
+        return res.status(400).json({ success: false, message: 'Priority waiting must be a non-negative whole number' });
+      }
+      updates.numberPriority = priorityNum;
+    }
+
+    if (updates.numberWaiting !== undefined && updates.numberPriority !== undefined) {
+      if (updates.numberPriority > updates.numberWaiting) {
+        return res.status(400).json({ success: false, message: 'Priority waiting cannot exceed total waiting patients' });
+      }
+    }
+
+    if (notes !== undefined) {
+      if (typeof notes !== 'string' || notes.trim().length < 3) {
+        return res.status(400).json({ success: false, message: 'Handover remarks/notes must be at least 3 characters long' });
+      }
+      updates.notes = notes.trim();
+    }
+
     let handover = await StaffHandover.findById(req.params.id);
     if (!handover) {
       return res.status(404).json({ success: false, message: 'Handover not found' });
     }
 
-    handover = await StaffHandover.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    handover = await StaffHandover.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true }).populate('createdBy', 'fullName role');
     res.status(200).json({ success: true, data: handover, message: 'Handover updated' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error' });
@@ -283,6 +403,10 @@ exports.updateHandover = async (req, res) => {
 
 exports.deleteHandover = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid handover ID format' });
+    }
+
     const handover = await StaffHandover.findByIdAndDelete(req.params.id);
     if (!handover) {
       return res.status(404).json({ success: false, message: 'Handover not found' });

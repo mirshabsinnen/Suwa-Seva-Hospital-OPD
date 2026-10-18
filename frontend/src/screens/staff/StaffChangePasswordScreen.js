@@ -25,6 +25,17 @@ const StaffChangePasswordScreen = ({ navigation }) => {
       showToast({ type: 'error', title: 'Missing Fields', message: 'Please fill in all password fields.' });
       return;
     }
+
+    if (newPassword.length < 6) {
+      showToast({ type: 'error', title: 'Password Too Short', message: 'New password must be at least 6 characters long.' });
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      showToast({ type: 'error', title: 'Identical Password', message: 'New password must be different from your current password.' });
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       showToast({ type: 'error', title: 'Mismatch', message: 'New passwords do not match.' });
       return;

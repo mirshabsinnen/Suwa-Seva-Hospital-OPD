@@ -49,6 +49,19 @@ const StaffPatientDetailsScreen = ({ route, navigation }) => {
   };
 
   const handleCallPatient = async () => {
+    if (!queueId) {
+      showToast({ type: 'error', title: 'Error', message: 'Queue ID is missing.' });
+      return;
+    }
+    if (patientData?.queue?.status !== 'waiting') {
+      showToast({
+        type: 'warning',
+        title: 'Cannot Call',
+        message: `Patient is already in '${patientData?.queue?.status || 'active'}' state.`,
+      });
+      return;
+    }
+
     try {
       setSubmitting(true);
       const response = await staffApi.callPatient(queueId);

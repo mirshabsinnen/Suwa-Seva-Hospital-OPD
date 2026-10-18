@@ -33,14 +33,39 @@ const StaffEditProfileScreen = ({ navigation }) => {
   };
 
   const handleSave = async () => {
-    if (!fullName || !email) {
-      showToast({ type: 'error', title: 'Missing Info', message: 'Name and email are required.' });
+    const trimmedName = fullName.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPhone = phone.trim();
+
+    if (!trimmedName) {
+      showToast({ type: 'error', title: 'Invalid Name', message: 'Full name is required.' });
+      return;
+    }
+
+    if (trimmedName.length < 2) {
+      showToast({ type: 'error', title: 'Invalid Name', message: 'Full name must be at least 2 characters.' });
+      return;
+    }
+
+    if (!trimmedEmail) {
+      showToast({ type: 'error', title: 'Invalid Email', message: 'Email address is required.' });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      showToast({ type: 'error', title: 'Invalid Email', message: 'Please enter a valid email address (e.g. name@domain.com).' });
+      return;
+    }
+
+    if (trimmedPhone && !/^[0-9+\-\s()]{7,16}$/.test(trimmedPhone)) {
+      showToast({ type: 'error', title: 'Invalid Phone', message: 'Please enter a valid contact phone number.' });
       return;
     }
     
     setSubmitting(true);
     try {
-      await updateProfile({ fullName, email, phone, profileImage });
+      await updateProfile({ fullName: trimmedName, email: trimmedEmail, phone: trimmedPhone, profileImage });
       showToast({
         type: 'success',
         title: 'Profile Updated',
