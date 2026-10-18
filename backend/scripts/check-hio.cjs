@@ -79,6 +79,35 @@ const { dayRange, localDate } = require('../src/utils/hioDateRange');
     await request('/reports/nope/10', 400);
     await request('/dashboard?date=2026-02-30', 400);
     await request('/queue-stats?page=0', 400);
+    await request('/performance?hospitalId=bad', 400);
+    await request('/reports?opdId=507f1f77bcf86cd799439011', 400);
+    const facilities = await request('/facilities');
+    for (const hospital of facilities.hospitals.slice(0, 2)) {
+      const opds = facilities.opds.filter(opd => String(opd.hospitalId) === String(hospital._id));
+      for (const opd of [null, ...opds.slice(0, 1)]) {
+        const filter = { hospitalId: hospital._id, ...(opd ? { opdId: opd._id } : {}) };
+        const query = new URLSearchParams(filter).toString();
+        const match = { hospitalId: new mongoose.Types.ObjectId(hospital._id), ...(opd ? { opdId: new mongoose.Types.ObjectId(opd._id) } : {}) };
+        const expected = await Appointment.countDocuments({ ...match, appointmentDate: { $gte: range.start, $lt: range.end } });
+        const filteredDashboard = await request(`/dashboard?${query}`);
+        const filteredPerformance = await request(`/performance?${query}`);
+        assert.equal(filteredDashboard.todayAppointments, expected);
+        assert.equal(filteredPerformance.appointments.total, expected);
+        assert.equal(filteredPerformance.scope.hospitalName, hospital.name);
+        const filteredReports = await request(`/reports?${query}`);
+        assert.equal(filteredReports.reduce((sum, item) => sum + item.appointmentCount, 0), await Appointment.countDocuments(match));
+        const filteredMonth = await request(`/reports/${year}/${Number(month)}?${query}`);
+        const { monthRange } = require('../src/utils/hioDateRange');
+        const monthPeriod = monthRange(year, month);
+        assert.equal(filteredMonth.totalAppointments, await Appointment.countDocuments({ ...match, appointmentDate: { $gte: monthPeriod.start, $lt: monthPeriod.end } }));
+        assert.equal(filteredMonth.dailyAppointmentTrend.reduce((sum, item) => sum + item.count, 0), filteredMonth.totalAppointments);
+        const appointmentIds = await Appointment.find({ ...match, appointmentDate: { $gte: range.start, $lt: range.end }, status: { $ne: 'cancelled' } }).distinct('_id');
+        const filteredQueue = await request(`/queue-stats?${query}`);
+        assert.equal(filteredQueue.pagination.total, await Queue.countDocuments({ appointmentId: { $in: appointmentIds }, status: { $in: ['waiting', 'called', 'serving'] } }));
+      }
+      const otherOpd = facilities.opds.find(opd => String(opd.hospitalId) !== String(hospital._id));
+      if (otherOpd) await request(`/performance?hospitalId=${hospital._id}&opdId=${otherOpd._id}`, 400);
+    }
     const empty = await request('/reports/2100/1');
     assert.equal(empty.totalAppointments, 0);
     assert.equal(empty.appointmentCompletionRate, null);

@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import hioApi from '../../services/hioApi';
 import useHioResource from './useHioResource';
@@ -17,6 +17,8 @@ export default function HIOReportNote({ year, month }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteError, setDeleteError] = useState('');
   const validObservation = observationDate.startsWith(`${year}-${String(month).padStart(2, '0')}-`) && observationDate <= colomboToday();
   const lock = useRef(false);
   const editId = useRef(null);
@@ -38,18 +40,19 @@ export default function HIOReportNote({ year, month }) {
     } catch (e) { setError(message(e)); }
     finally { lock.current = false; setBusy(false); }
   };
-  const remove = (id) => {
-    if (!id || lock.current) return;
-    Alert.alert('Delete review note?', 'This will remove the HIO review note for this monthly report.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => {
-        if (lock.current) return;
-        lock.current = true; setBusy(true); setError(''); setSuccess('');
-        try { await hioApi.deleteReportNote(id); setSuccess('Review note deleted.'); await resource.refresh(); }
-        catch (e) { setError(message(e)); }
-        finally { lock.current = false; setBusy(false); }
-      } },
-    ]);
+  const cancelDelete = () => {
+    if (lock.current) return;
+    setDeleteTarget(null); setDeleteError('');
+  };
+  const confirmDelete = async () => {
+    if (!deleteTarget?._id || lock.current) return;
+    lock.current = true; setBusy(true); setDeleteError(''); setError(''); setSuccess('');
+    try {
+      await hioApi.deleteReportNote(deleteTarget._id);
+      setDeleteTarget(null); setSuccess('Review note deleted.');
+      await resource.refresh();
+    } catch (e) { setDeleteError(message(e)); }
+    finally { lock.current = false; setBusy(false); }
   };
   const button = (label, onPress, disabled = false, danger = false) => <TouchableOpacity accessibilityRole="button" accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={[s.button, danger && s.danger, disabled && { opacity: 0.5 }]}><Text style={s.buttonText}>{label}</Text></TouchableOpacity>;
   return <SectionCard title="HIO Review Notes" subtitle="Your administrative observation for this month. Do not include patient names or medical information." icon="create-outline">
@@ -61,12 +64,30 @@ export default function HIOReportNote({ year, month }) {
         <Text selectable style={s.note}>{saved.note}</Text>
         {saved.createdAt ? <Text style={s.caption}>Saved: {new Date(saved.createdAt).toLocaleString('en-GB', { timeZone: 'Asia/Colombo' })} (Asia/Colombo)</Text> : null}
         {saved.updatedAt ? <Text style={s.caption}>Last updated: {new Date(saved.updatedAt).toLocaleString('en-GB', { timeZone: 'Asia/Colombo' })} (Asia/Colombo)</Text> : null}
-        <View style={s.row}>{button('Edit Note', () => open(saved), busy || resource.refreshing)}{button('Delete', () => remove(saved._id), busy || resource.refreshing, true)}</View>
+        <View style={s.row}>{button('Edit Note', () => open(saved), busy || resource.refreshing)}{button('Delete', () => { setDeleteError(''); setDeleteTarget(saved); }, busy || resource.refreshing, true)}</View>
       </View>) : <Text style={s.note}>No review notes have been added for this report.</Text>}
       {button('Add Review Note', () => open(), busy || resource.refreshing)}
     </>}
     {!editing && error ? <Text accessibilityRole="alert" style={s.error}>{error}</Text> : null}
     {success ? <Text accessibilityLiveRegion="polite" style={s.success}>{success}</Text> : null}
+    <Modal visible={deleteTarget !== null} transparent animationType="fade" onRequestClose={cancelDelete}>
+      <View style={s.overlay}>
+        <View style={s.confirmBox} accessibilityViewIsModal>
+          <Text accessibilityRole="header" style={s.title}>Delete review note?</Text>
+          <Text style={s.note}>This will permanently remove the selected HIO review note. This cannot be undone.</Text>
+          {deleteTarget ? <>
+            <Text style={s.caption}>Observation date: {deleteTarget.observationDate || 'Not recorded'}</Text>
+            <Text numberOfLines={3} style={s.note}>{deleteTarget.note}</Text>
+          </> : null}
+          {deleteError ? <Text accessibilityRole="alert" style={s.error}>{deleteError}</Text> : null}
+          {busy ? <ActivityIndicator color="#005A71" /> : null}
+          <View style={s.row}>
+            {button('Cancel', cancelDelete, busy)}
+            {button(busy ? 'Deleting...' : 'Delete Note', confirmDelete, busy, true)}
+          </View>
+        </View>
+      </View>
+    </Modal>
     <Modal visible={editing} animationType="slide" onRequestClose={() => { if (!busy) setEditing(false); }}>
       <SafeAreaView style={s.safe}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -92,6 +113,8 @@ export default function HIOReportNote({ year, month }) {
   </SectionCard>;
 }
 const s = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: '#0008', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  confirmBox: { width: '100%', maxWidth: 440, backgroundColor: '#fff', borderRadius: 16, padding: 24 },
   safe: { flex: 1, backgroundColor: '#f0f4f8' }, form: { padding: 20, flexGrow: 1 },
   title: { color: '#005A71', fontSize: 22, fontWeight: '700' }, label: { color: '#005A71', fontSize: 15, fontWeight: '600', marginTop: 20, marginBottom: 8 },
   input: { minHeight: 170, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ccd8e0', borderRadius: 12, padding: 14, fontSize: 16, color: '#1a2b3c' },

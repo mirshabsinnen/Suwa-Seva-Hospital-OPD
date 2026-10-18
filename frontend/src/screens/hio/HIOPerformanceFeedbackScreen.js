@@ -2,6 +2,8 @@ import React, { useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import hioApi from '../../services/hioApi';
+import HIOFacilityFilter, { useHioFacility } from '../../components/hio/HIOFacilityFilter';
+import HIODateFilter, { useHioDate } from '../../components/hio/HIODateFilter';
 import useHioResource from '../../components/hio/useHioResource';
 import { Screen, number, minutes, percentage } from '../../components/hio/HIOUI';
 
@@ -81,11 +83,16 @@ function Unavailable({ title, heading, description, icon }) {
 }
 
 export default function HIOPerformanceFeedbackScreen() {
-  const resource = useHioResource(useCallback(signal => hioApi.performance({ signal }), []));
+  const { selection, setSelection, date, isToday } = useHioDate();
+  const facility = useHioFacility();
+  const resource = useHioResource(useCallback(signal => hioApi.performance({ signal, params: { date, ...facility.params } }), [date, facility.hospitalId, facility.opdId]), isToday);
   const d = resource.data;
 
   return (
-    <Screen title="OPD Performance & Citizen Feedback" subtitle="Operational performance • Today's appointments" resource={resource}>
+    <Screen title="OPD Performance & Citizen Feedback"
+      subtitle={isToday ? "Operational performance • Today's appointments" : `Operational performance • ${date}`}
+      resource={resource} live={isToday}
+      filters={<><HIOFacilityFilter facility={facility} /><HIODateFilter selection={selection} date={date} onChange={setSelection} /></>}>
       {d ? (
         <View style={s.wrap}>
           {/* 2. KPI cards */}

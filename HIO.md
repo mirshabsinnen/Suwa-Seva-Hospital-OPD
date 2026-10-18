@@ -143,6 +143,49 @@ are build-validated but still need the manual mobile acceptance steps above.
 Temporary initial-route overrides used during testing were restored.
 # Daily monitoring date filters
 
+## HIO interaction updates (2026-10-18)
+
+Review-note deletion now uses an in-app confirmation modal on mobile and web,
+with the selected note preview, Cancel, a duplicate-click guard and visible retry
+errors. Performance now uses the same Today/Yesterday/calendar controls as
+Dashboard and Queue; only today polls every 30 seconds.
+
+Download PDF now selects a device folder and saves the generated PDF there.
+Cancel leaves no report file; failed writes attempt to remove the partial file.
+The separate Share Report PDF button sends the full PDF attachment with metrics,
+daily trend and current owner's saved review notes using the system share sheet.
+Both actions share an in-progress guard. Local-file PDF sharing is mobile-only;
+web users save via the browser print dialog and attach the PDF themselves.
+These behaviors supersede the original share-summary/cache-export descriptions
+below. PDF generation and save/share logic passed compilation/mock checks;
+physical-device save/share and confirmation-modal acceptance remain pending.
+
+## Hospital / OPD filters (2026-10-18)
+
+Dashboard, Queue, Performance and Reports now offer independent Hospital/OPD
+selectors, defaulting to All Hospitals / All OPDs. Selecting a hospital resets
+the OPD; changing either selection resets queue pagination. Report Details
+inherits the report list selection, and PDF/text exports include the server's
+resolved hospital/OPD names. Review notes remain owner/month records across all
+facilities, explicitly labelled in Report Details and PDF; they are not filtered
+notes or approvals for the selected facility.
+
+All five analytics GET endpoints accept optional hospitalId and opdId query
+parameters. OPD requires a hospital. Invalid IDs, missing facilities and mismatched
+hospital/OPD pairs return 400. Scope applies to appointment counts, trends, joined
+queue summaries/rosters, report month lists and monthly summaries. The protected
+GET /api/hio/facilities endpoint supplies names/IDs (including inactive facilities
+for historical reports). These filters do not change access permissions.
+
+Restart the backend and reload Expo to enable the new endpoint and controls.
+Verify All -> Hospital -> OPD -> different Hospital (OPD resets) -> All; select
+past dates, check empty results, queue page reset, and report/PDF scope labels.
+Unit checks: node --test tests/hioFacility.test.js tests/hioDateRange.test.js.
+The read-only scripts/check-hio.cjs also compares filtered counts/monthly trends
+and queue totals with independent database queries. Physical UI/save acceptance
+is still required. Patient feedback integration remains in its separate PR;
+when combining branches, its summary adapter must also apply facility scope.
+
 ## HIO-owned monthly review notes
 
 Monthly Report Details supports multiple administrative notes per HIO/month.
