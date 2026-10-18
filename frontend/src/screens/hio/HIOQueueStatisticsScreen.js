@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import hioApi from '../../services/hioApi';
+import HIOFacilityFilter, { useHioFacility } from '../../components/hio/HIOFacilityFilter';
 import HIODateFilter, { useHioDate } from '../../components/hio/HIODateFilter';
 import useHioResource from '../../components/hio/useHioResource';
 import { Screen, EmptyState, Badge, number, minutes, statusLabel } from '../../components/hio/HIOUI';
@@ -98,13 +99,14 @@ export default function HIOQueueStatisticsScreen() {
   const [page, setPage] = useState(1);
   const { selection, setSelection, date, isToday } = useHioDate();
   const changeDate = value => { setPage(1); setSelection(value); };
-  const resource = useHioResource(useCallback(signal => hioApi.queue({ signal, params: { page, limit: PAGE_SIZE, date } }), [page, date]), isToday);
+  const facility = useHioFacility();
+  const resource = useHioResource(useCallback(signal => hioApi.queue({ signal, params: { page, limit: PAGE_SIZE, date, ...facility.params } }), [page, date, facility.hospitalId, facility.opdId]), isToday);
   const d = resource.data, sm = d?.summary;
   const total = d?.pagination?.total;
 
   return (
     <Screen title="Queue & Waiting Statistics" subtitle={isToday ? "Today's OPD queue - Monitoring only" : `Queue records - ${date}`} resource={resource} live={isToday}
-      filters={<HIODateFilter selection={selection} date={date} onChange={changeDate} />}>
+      filters={<><HIOFacilityFilter facility={facility} onChange={() => setPage(1)} /><HIODateFilter selection={selection} date={date} onChange={changeDate} /></>}>
       {d ? (
         <View style={s.wrap}>
           {/* 2. KPI cards */}

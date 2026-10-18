@@ -1,7 +1,7 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Platform } from 'react-native';
-import { File, Paths } from 'expo-file-system';
+import { Directory, File, Paths } from 'expo-file-system';
 
 const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const numeric = value => value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value).toLocaleString('en-US') : 'Unavailable';
@@ -31,11 +31,11 @@ export function monthlyReportHtml(report) {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>SuwaSeva Monthly Report</title>
     <style>@page{size:A4;margin:18mm}body{font:12px Arial,sans-serif;color:#1a2b3c}h1{color:#005a71;font-size:25px}h2{color:#0a3d62;font-size:17px;margin-top:24px}.muted{color:#66788a;line-height:1.6}table{border-collapse:collapse;width:100%;margin-top:12px}th,td{padding:9px;border-bottom:1px solid #e4ebf2;text-align:left}th{background:#eef4ff}tr{page-break-inside:avoid}.value{text-align:right;font-weight:bold}.bar{background:#005a71;height:9px;border-radius:3px}.note{background:#eef4ff;padding:12px;line-height:1.6;margin-top:20px}</style></head>
     <body><h1>SuwaSeva - HIO Monthly Report</h1><h2>${escape(report.label)}</h2>
-    <p class="muted">All Hospitals / All OPDs<br>Timezone: Asia/Colombo<br>Data generated: ${escape(generatedLabel)}</p>
+    <p class="muted">${escape(report.scope?.hospitalName || 'All Hospitals')} / ${escape(report.scope?.opdName || 'All OPDs')}<br>Timezone: Asia/Colombo<br>Data generated: ${escape(generatedLabel)}</p>
     ${report.totalAppointments === 0 ? '<p>No appointment records for this month.</p>' : ''}
     <table><thead><tr><th>Operational metric</th><th class="value">Value</th></tr></thead><tbody>${rows.map(([label, value]) => `<tr><td>${escape(label)}</td><td class="value">${escape(value)}</td></tr>`).join('')}</tbody></table>
     <h2>Daily Appointment Trend</h2>${days.length ? `<table><thead><tr><th>Date</th><th>Appointments</th><th>Trend</th></tr></thead><tbody>${days.map(day => `<tr><td>${escape(day.date)}</td><td>${escape(numeric(day.count))}</td><td style="width:45%"><div class="bar" style="width:${Math.max(0, Math.min(100, (Number(day.count) || 0) / max * 100))}%"></div></td></tr>`).join('')}</tbody></table>` : '<p>No trend data available.</p>'}
-    <h2>HIO Review Notes</h2><p class="muted">Administrative observations from the exporting HIO. Not clinical notes.</p>${Array.isArray(report.reviewNotes) && report.reviewNotes.length ? report.reviewNotes.map(note => `<section style="page-break-inside:avoid;margin-bottom:16px;border-bottom:1px solid #e4ebf2"><p><strong>Observation date:</strong> ${escape(note.observationDate || 'Not recorded (existing note)')}<br><strong>Status:</strong> ${escape(({draft:'Draft', reviewed:'Reviewed', needs_attention:'Needs Attention'})[note.reviewStatus] || note.reviewStatus)}</p><p style="white-space:pre-wrap">${escape(note.note)}</p><p class="muted">Saved: ${escape(note.createdAt ? new Date(note.createdAt).toLocaleString('en-GB', {timeZone:'Asia/Colombo'}) : 'Unavailable')} (Asia/Colombo)<br>Last updated: ${escape(note.updatedAt ? new Date(note.updatedAt).toLocaleString('en-GB', {timeZone:'Asia/Colombo'}) : 'Unavailable')} (Asia/Colombo)</p></section>`).join('') : '<p>No review notes for this month.</p>'}
+    <h2>HIO Review Notes</h2><p class="muted">Whole-month observations from the exporting HIO across all hospitals and OPDs; not limited by report filters. Not clinical notes.</p>${Array.isArray(report.reviewNotes) && report.reviewNotes.length ? report.reviewNotes.map(note => `<section style="page-break-inside:avoid;margin-bottom:16px;border-bottom:1px solid #e4ebf2"><p><strong>Observation date:</strong> ${escape(note.observationDate || 'Not recorded (existing note)')}<br><strong>Status:</strong> ${escape(({draft:'Draft', reviewed:'Reviewed', needs_attention:'Needs Attention'})[note.reviewStatus] || note.reviewStatus)}</p><p style="white-space:pre-wrap">${escape(note.note)}</p><p class="muted">Saved: ${escape(note.createdAt ? new Date(note.createdAt).toLocaleString('en-GB', {timeZone:'Asia/Colombo'}) : 'Unavailable')} (Asia/Colombo)<br>Last updated: ${escape(note.updatedAt ? new Date(note.updatedAt).toLocaleString('en-GB', {timeZone:'Asia/Colombo'}) : 'Unavailable')} (Asia/Colombo)</p></section>`).join('') : '<p>No review notes for this month.</p>'}
     <div class="note">Live derived report, not an approved or saved report record. Completion rate uses all appointment statuses, including cancellations. Checked-in counts require arrival. Estimated wait is a stored estimate for arrived, waiting records. Queue completions are not verified doctor consultations. No patient identifiers are included.</div></body></html>`;
 }
 
@@ -45,14 +45,35 @@ export async function exportMonthlyReportPdf(report) {
     await Print.printAsync({ html });
     return;
   }
-  if (!await Sharing.isAvailableAsync()) throw new Error('File sharing is unavailable on this device.');
+  let directory;
+  try { directory = await Directory.pickDirectoryAsync(); }
+  catch (error) {
+    if (/cancel/i.test(error?.code || '') || /cancel/i.test(error?.message || '')) return null;
+    throw error;
+  }
   // Expo Go's Print output can be outside the project's scoped filesystem.
   // Obtain bytes directly from Print and write to the permitted project cache;
   // copying/reading the original URI would hit the same permissions restriction.
   const { base64 } = await Print.printToFileAsync({ html, width: 595, height: 842, base64: true });
   if (!base64) throw new Error('PDF generation returned no document data. Please try again.');
-  const file = new File(Paths.cache, `SuwaSeva-HIO-${Number(report.year)}-${String(Number(report.month)).padStart(2, '0')}.pdf`);
-  file.create({ overwrite: true });
+  const name = `SuwaSeva-HIO-${Number(report.year)}-${String(Number(report.month)).padStart(2, '0')}-${Date.now()}.pdf`;
+  const file = directory.createFile(name, 'application/pdf');
+  try { file.write(base64, { encoding: 'base64' }); }
+  catch (error) {
+    try { file.delete(); } catch { /* Preserve the original save error. */ }
+    throw error;
+  }
+  return { uri: file.uri, name };
+}
+
+export async function shareMonthlyReportPdf(report) {
+  if (Platform.OS === 'web') throw new Error('PDF attachment sharing is available in the mobile app. On web, download the PDF and attach it in your preferred app.');
+  if (!await Sharing.isAvailableAsync()) throw new Error('File sharing is unavailable on this device.');
+  const { base64 } = await Print.printToFileAsync({ html: monthlyReportHtml(report), width: 595, height: 842, base64: true });
+  if (!base64) throw new Error('PDF generation returned no document data. Please try again.');
+  const name = `SuwaSeva-HIO-${Number(report.year)}-${String(Number(report.month)).padStart(2, '0')}-${Date.now()}.pdf`;
+  const file = new File(Paths.cache, name);
+  file.create();
   file.write(base64, { encoding: 'base64' });
-  await Sharing.shareAsync(file.uri, { mimeType: 'application/pdf', UTI: '.pdf', dialogTitle: `Save or share SuwaSeva ${report.label}` });
+  await Sharing.shareAsync(file.uri, { mimeType: 'application/pdf', UTI: 'com.adobe.pdf', dialogTitle: `Share ${report.label} report PDF` });
 }

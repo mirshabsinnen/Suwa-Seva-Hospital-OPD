@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { View, Text, Share, Alert, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { exportMonthlyReportPdf } from '../../services/hioReportPdf';
+import { View, Text, Alert, Platform, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { exportMonthlyReportPdf, shareMonthlyReportPdf } from '../../services/hioReportPdf';
 import HIOReportNote from '../../components/hio/HIOReportNote';
 import { Ionicons } from '@expo/vector-icons';
 import hioApi from '../../services/hioApi';
@@ -84,8 +84,8 @@ function Unavailable({ title, heading, description, cardIcon, mainIcon }) {
 }
 
 export default function HIOReportDetailsScreen({ route }) {
-  const { year, month } = route.params || {};
-  const resource = useHioResource(useCallback(signal => hioApi.report(year, month, { signal }), [year, month]));
+  const { year, month, hospitalId, opdId } = route.params || {};
+  const resource = useHioResource(useCallback(signal => hioApi.report(year, month, { signal, params: { hospitalId, opdId } }), [year, month, hospitalId, opdId]));
   const d = resource.data;
   const [exporting, setExporting] = useState(false);
   const exportInProgress = useRef(false);
@@ -94,25 +94,26 @@ export default function HIOReportDetailsScreen({ route }) {
     exportInProgress.current = true;
     setExporting(true);
     try { const reviewNotes = await hioApi.getReportNote(year, month);
-      await exportMonthlyReportPdf({ ...d, reviewNotes }); }
+      const saved = await exportMonthlyReportPdf({ ...d, reviewNotes });
+      if (saved) Alert.alert('PDF saved', `${saved.name}\nSaved to your selected folder.`); }
     catch (error) {
       console.error('HIO PDF export failed:', error?.message || error);
-      Alert.alert('Unable to export PDF', error?.message || 'The report could not be generated or shared. Please try again.');
+      Alert.alert('Unable to save PDF', error?.message || 'The report could not be saved. Please try again.');
     }
     finally { exportInProgress.current = false; setExporting(false); }
   };
 
-  const shareSummary = async () => {
+  const shareReport = async () => {
+    if (!d || exportInProgress.current) return;
+    exportInProgress.current = true; setExporting(true);
     try {
-      await Share.share({ title: `SuwaSeva ${d.label}`, message: [
-        `SuwaSeva — ${d.label}`, 'All hospitals / OPDs • Asia/Colombo',
-        `Appointments: ${d.totalAppointments}`, `Completed appointments: ${d.appointments.completed}`,
-        `Completion rate: ${percentage(d.appointmentCompletionRate)}`, `Checked in: ${d.checkedInPatients}`,
-        `Queue completions: ${d.queueCompletionCount}`, `Emergency cases: ${d.emergencyCases}`,
-        `Estimated wait: ${minutes(d.averageEstimatedWait)}`, 'Feedback & verified consultation analytics unavailable.',
-        `Live derived report generated ${d.generatedAt}. No patient identifiers included.`,
-      ].join('\n') });
-    } catch { Alert.alert('Unable to share', 'Please try sharing the report again.'); }
+      const reviewNotes = await hioApi.getReportNote(year, month);
+      await shareMonthlyReportPdf({ ...d, reviewNotes });
+    } catch (error) {
+      const message = error?.message || 'The PDF could not be shared. Please try again.';
+      if (Platform.OS === 'web') window.alert(message);
+      else Alert.alert('Unable to share PDF', message);
+    } finally { exportInProgress.current = false; setExporting(false); }
   };
 
   const hero = d ? (
@@ -120,7 +121,7 @@ export default function HIOReportDetailsScreen({ route }) {
       <View style={{ flex: 1 }}>
         <Text style={s.heroKicker}>Monthly Performance Report</Text>
         <Text style={s.heroName} numberOfLines={2}>{d.label}</Text>
-        <Text style={s.heroScope} numberOfLines={2}>All Hospitals • All OPDs • Asia/Colombo</Text>
+        <Text style={s.heroScope} numberOfLines={2}>{d.scope?.hospitalName || 'All Hospitals'} • {d.scope?.opdName || 'All OPDs'} • Asia/Colombo</Text>
         {d.generatedAt ? (
           <Text style={s.heroUpdated}>
             Generated {new Date(d.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -214,18 +215,19 @@ export default function HIOReportDetailsScreen({ route }) {
           />
 
           {/* 8. Share */}
+          <Text style={s.shareHint}>Review notes cover the entire month across all hospitals and OPDs, independently of report filters.</Text>
           <HIOReportNote key={`${year}-${month}`} year={year} month={month} />
           <View>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Download monthly report PDF" accessibilityState={{ disabled: exporting, busy: exporting }} disabled={exporting} onPress={downloadPdf} style={[s.shareBtn, { marginBottom: 10, opacity: exporting ? 0.65 : 1 }]}>
               {exporting ? <ActivityIndicator color="#fff" /> : <Ionicons name="download-outline" size={18} color="#fff" />}
               <Text style={s.shareText}>{exporting ? 'Preparing PDF...' : 'Download PDF'}</Text>
             </TouchableOpacity>
-            <Text style={[s.shareHint, { marginTop: 0, marginBottom: 12 }]}>Choose an available save/share app to keep the PDF.</Text>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Share report summary" onPress={shareSummary} style={s.shareBtn}>
+            <Text style={[s.shareHint, { marginTop: 0, marginBottom: 12 }]}>Choose a folder to save the PDF. On web, select Save as PDF in the print dialog.</Text>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Share full report PDF" accessibilityState={{ disabled: exporting, busy: exporting }} disabled={exporting} onPress={shareReport} style={[s.shareBtn, exporting && { opacity: 0.65 }]}>
               <Ionicons name="share-outline" size={18} color="#fff" />
-              <Text style={s.shareText}>Share Report Summary</Text>
+              <Text style={s.shareText}>{exporting ? 'Preparing PDF...' : 'Share Report PDF'}</Text>
             </TouchableOpacity>
-            <Text style={s.shareHint}>Anonymized operational summary only</Text>
+            <Text style={s.shareHint}>Full PDF with report metrics, daily trend and your saved review notes. No patient identifiers.</Text>
           </View>
 
           {/* 9. Note */}

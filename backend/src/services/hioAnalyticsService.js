@@ -1,5 +1,6 @@
 const Appointment = require('../models/Appointment');
 const Queue = require('../models/Queue');
+const { match: facilityMatch } = require('./hioFacilityService');
 const { TIMEZONE, DAY_MS, dayRange, monthLabel, dateLabels } = require('../utils/hioDateRange');
 
 const ACTIVE = ['waiting', 'called', 'serving'];
@@ -23,12 +24,12 @@ function scopeQueue(range) {
   return [
     { $lookup: { from: Appointment.collection.name, localField: 'appointmentId', foreignField: '_id', as: 'appointment' } },
     { $unwind: '$appointment' },
-    { $match: { 'appointment.appointmentDate': within(range), 'appointment.status': { $ne: 'cancelled' }, status: { $ne: 'cancelled' } } },
+    { $match: { ...facilityMatch(range.scope, 'appointment.'), 'appointment.appointmentDate': within(range), 'appointment.status': { $ne: 'cancelled' }, status: { $ne: 'cancelled' } } },
   ];
 }
 async function appointmentSummary(range) {
   const rows = await Appointment.aggregate([
-    { $match: { appointmentDate: within(range) } },
+    { $match: { ...facilityMatch(range.scope), appointmentDate: within(range) } },
     { $group: { _id: '$status', count: { $sum: 1 } } },
   ]);
   const result = { total: 0, booked: 0, confirmed: 0, cancelled: 0, rescheduled: 0, completed: 0 };
@@ -37,7 +38,7 @@ async function appointmentSummary(range) {
 }
 async function trend(range) {
   const rows = await Appointment.aggregate([
-    { $match: { appointmentDate: within(range) } },
+    { $match: { ...facilityMatch(range.scope), appointmentDate: within(range) } },
     { $group: { _id: { $dateToString: { date: '$appointmentDate', format: '%Y-%m-%d', timezone: TIMEZONE } }, count: { $sum: 1 } } },
   ]);
   const counts = new Map(rows.map(row => [row._id, row.count]));
@@ -76,7 +77,7 @@ async function queueSummary(range) {
   return summary;
 }
 function metadata(range) {
-  return { timezone: TIMEZONE, period: { start: range.start, endExclusive: range.end, label: range.label },
+  return { scope: range.scope || { hospitalName: 'All Hospitals', opdName: 'All OPDs' }, timezone: TIMEZONE, period: { start: range.start, endExclusive: range.end, label: range.label },
     generatedAt: new Date(), definitions: {
       waiting: 'Arrived patients with queue status waiting',
       checkedIn: 'Arrived records in the appointment period, including completed visits',
@@ -87,7 +88,7 @@ function metadata(range) {
     } };
 }
 async function dashboard(range = dayRange()) {
-  const trendRange = { start: new Date(range.start.getTime() - 6 * DAY_MS), end: range.end };
+  const trendRange = { start: new Date(range.start.getTime() - 6 * DAY_MS), end: range.end, scope: range.scope };
   const [appointments, queue, appointmentTrendLast7Days] = await Promise.all([
     appointmentSummary(range), queueSummary(range), trend(trendRange),
   ]);
@@ -134,8 +135,9 @@ async function performance(range = dayRange()) {
     emergencyCases: queue.emergencyCases, priorityCases: queue.priorityCases, normalCases: queue.normalCases,
     ...unavailableSources() };
 }
-async function reports() {
+async function reports(scope) {
   const rows = await Appointment.aggregate([
+    { $match: facilityMatch(scope) },
     { $group: { _id: { year: { $year: { date: '$appointmentDate', timezone: TIMEZONE } },
       month: { $month: { date: '$appointmentDate', timezone: TIMEZONE } } }, appointmentCount: { $sum: 1 } } },
     { $sort: { '_id.year': -1, '_id.month': -1 } },

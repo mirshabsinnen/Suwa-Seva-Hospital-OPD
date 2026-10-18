@@ -11,6 +11,7 @@ router.use((req, res, next) => {
   next();
 });
 router.get('/dashboard', controller.dashboard);
+router.get('/facilities', controller.facilities);
 router.post('/report-notes', notes.create);
 router.get('/report-notes/:year/:month', notes.read);
 router.put('/report-notes/:id', notes.update);

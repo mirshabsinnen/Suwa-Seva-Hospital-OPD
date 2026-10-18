@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../context/AuthContext';
 import hioApi from '../../services/hioApi';
+import HIOFacilityFilter, { useHioFacility } from '../../components/hio/HIOFacilityFilter';
 import HIODateFilter, { useHioDate } from '../../components/hio/HIODateFilter';
 import useHioResource from '../../components/hio/useHioResource';
 import { Screen, number, minutes, palette } from '../../components/hio/HIOUI';
@@ -87,7 +88,8 @@ function Pill({ label, value, icon, fg, bg }) {
 export default function HIODashboardScreen() {
   const { userInfo } = useContext(AuthContext);
   const { selection, setSelection, date, isToday } = useHioDate();
-  const resource = useHioResource(useCallback(signal => hioApi.dashboard({ signal, params: { date } }), [date]), isToday);
+  const facility = useHioFacility();
+  const resource = useHioResource(useCallback(signal => hioApi.dashboard({ signal, params: { date, ...facility.params } }), [date, facility.hospitalId, facility.opdId]), isToday);
   const d = resource.data;
 
   const appointmentStatus = d ? [
@@ -114,7 +116,7 @@ export default function HIODashboardScreen() {
         <Text style={s.heroHello}>{greeting()},</Text>
         <Text style={s.heroName} numberOfLines={1}>{userInfo?.fullName || 'Health Information Officer'}</Text>
         <Text style={s.heroScope} numberOfLines={2}>
-          All Hospitals • All OPDs • {d.period?.label || 'Today'}
+          {d.scope?.hospitalName || 'All Hospitals'} • {d.scope?.opdName || 'All OPDs'} • {d.period?.label || 'Today'}
         </Text>
         {d.generatedAt ? (
           <Text style={s.heroUpdated}>
@@ -131,7 +133,7 @@ export default function HIODashboardScreen() {
 
   return (
     <Screen title="HIO Analytics" subtitle={isToday ? "Operational overview for today" : `Operational records - ${date}`} resource={resource} live={isToday} hero={hero}
-      filters={<HIODateFilter selection={selection} date={date} onChange={setSelection} />}>
+      filters={<><HIOFacilityFilter facility={facility} /><HIODateFilter selection={selection} date={date} onChange={setSelection} /></>}>
       {d ? (
         <View style={s.wrap}>
           {/* 2. KPI cards */}
