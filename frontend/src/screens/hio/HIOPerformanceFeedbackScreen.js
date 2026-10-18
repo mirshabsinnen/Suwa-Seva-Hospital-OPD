@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import hioApi from '../../services/hioApi';
+import HIOFeedbackSummary from '../../components/hio/HIOFeedbackSummary';
 import useHioResource from '../../components/hio/useHioResource';
 import { Screen, number, minutes, percentage } from '../../components/hio/HIOUI';
 
@@ -143,12 +144,7 @@ export default function HIOPerformanceFeedbackScreen() {
           </Card>
 
           {/* 5. Citizen feedback */}
-          <Unavailable
-            title="Citizen Feedback"
-            icon={{ card: 'chatbubbles-outline', main: 'chatbubble-ellipses-outline' }}
-            heading="No patient feedback available yet."
-            description={d.feedback?.available ? 'No responses for this period.' : 'Feedback analytics will appear when the feedback data source is available.'}
-          />
+          <HIOFeedbackSummary feedback={d.feedback} />
 
           {/* 6. Consultation analytics */}
           <Unavailable

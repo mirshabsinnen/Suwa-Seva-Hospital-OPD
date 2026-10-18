@@ -30,6 +30,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/hio', require('./routes/hioRoutes'));
+app.use('/api/feedback', require('./routes/patientFeedbackRoutes'));
 app.use('/api/doctor', doctorRoutes);
 app.get("/", (req, res) => {
   res.json({
