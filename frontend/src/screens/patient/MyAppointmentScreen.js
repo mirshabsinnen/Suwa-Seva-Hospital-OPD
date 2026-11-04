@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
+import PatientFeedback from '../../components/PatientFeedback';
 import { useFocusEffect } from '@react-navigation/native';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -180,6 +181,7 @@ const MyAppointmentScreen = () => {
           </View>
         </View>
 
+        {item.status === 'completed' ? <PatientFeedback appointmentId={item._id} /> : null}
         {isActionable && (
           <View style={styles.cardFooter}>
             <TouchableOpacity

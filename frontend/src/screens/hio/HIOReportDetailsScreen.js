@@ -4,6 +4,7 @@ import { exportMonthlyReportPdf } from '../../services/hioReportPdf';
 import HIOReportNote from '../../components/hio/HIOReportNote';
 import { Ionicons } from '@expo/vector-icons';
 import hioApi from '../../services/hioApi';
+import HIOFeedbackSummary from '../../components/hio/HIOFeedbackSummary';
 import useHioResource from '../../components/hio/useHioResource';
 import { Screen, EmptyState, number, minutes, percentage } from '../../components/hio/HIOUI';
 import { LineChart } from '../../components/hio/HIOCharts';
@@ -109,7 +110,9 @@ export default function HIOReportDetailsScreen({ route }) {
         `Appointments: ${d.totalAppointments}`, `Completed appointments: ${d.appointments.completed}`,
         `Completion rate: ${percentage(d.appointmentCompletionRate)}`, `Checked in: ${d.checkedInPatients}`,
         `Queue completions: ${d.queueCompletionCount}`, `Emergency cases: ${d.emergencyCases}`,
-        `Estimated wait: ${minutes(d.averageEstimatedWait)}`, 'Feedback & verified consultation analytics unavailable.',
+        `Estimated wait: ${minutes(d.averageEstimatedWait)}`,
+        `Feedback responses: ${d.feedback?.total ?? 0}; average rating: ${d.feedback?.averageRating ?? 'Unavailable'}/5`,
+        'Verified consultation analytics unavailable.',
         `Live derived report generated ${d.generatedAt}. No patient identifiers included.`,
       ].join('\n') });
     } catch { Alert.alert('Unable to share', 'Please try sharing the report again.'); }
@@ -196,13 +199,7 @@ export default function HIOReportDetailsScreen({ route }) {
           </Card>
 
           {/* 6. Feedback */}
-          <Unavailable
-            title="Citizen Feedback"
-            cardIcon="chatbubbles-outline"
-            mainIcon="chatbubble-ellipses-outline"
-            heading="No patient feedback available yet."
-            description={d.feedback?.available ? 'No responses for this period.' : 'Feedback analytics will appear when the feedback data source is available.'}
-          />
+          <HIOFeedbackSummary feedback={d.feedback} />
 
           {/* 7. Consultation */}
           <Unavailable

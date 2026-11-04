@@ -1,5 +1,6 @@
 const Appointment = require('../models/Appointment');
 const Queue = require('../models/Queue');
+const feedbackService = require('./patientFeedbackService');
 const { TIMEZONE, DAY_MS, dayRange, monthLabel, dateLabels } = require('../utils/hioDateRange');
 
 const ACTIVE = ['waiting', 'called', 'serving'];
@@ -126,13 +127,13 @@ async function queueStats(range = dayRange(), page = 1, limit = 25) {
     pagination: { page, limit, total: result.total?.[0]?.count || 0 } };
 }
 async function performance(range = dayRange()) {
-  const [appointments, queue] = await Promise.all([appointmentSummary(range), queueSummary(range)]);
+  const [appointments, queue, feedback] = await Promise.all([appointmentSummary(range), queueSummary(range), feedbackService.summary(range)]);
   return { ...metadata(range), appointments,
     appointmentCompletionRate: appointments.total ? Math.round(appointments.completed / appointments.total * 1000) / 10 : null,
     queueCompletionCount: queue.completed, checkedInPatients: queue.checkedIn,
     averageEstimatedWait: queue.averageEstimatedWait, observedWaitUntilCalled: queue.observedWaitUntilCalled,
     emergencyCases: queue.emergencyCases, priorityCases: queue.priorityCases, normalCases: queue.normalCases,
-    ...unavailableSources() };
+    ...unavailableSources(), feedback };
 }
 async function reports() {
   const rows = await Appointment.aggregate([

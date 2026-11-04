@@ -21,7 +21,9 @@ export function monthlyReportHtml(report) {
     ['Routine cases', numeric(report.normalCases)],
     ['Average estimated wait', measure(report.averageEstimatedWait, ' min')],
     ['Observed wait until called', measure(report.observedWaitUntilCalled, ' min')],
-    ['Patient feedback', 'Unavailable - no feedback data source'],
+    ['Feedback responses', numeric(report.feedback?.total)],
+    ['Average feedback rating (out of 5)', numeric(report.feedback?.averageRating)],
+    ['Positive feedback (4 or 5 out of 5)', measure(report.feedback?.positivePercentage, '%')],
     ['Verified consultations', 'Unavailable - no consultation data source'],
   ];
   const days = Array.isArray(report.dailyAppointmentTrend) ? report.dailyAppointmentTrend : [];

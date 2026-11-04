@@ -46,6 +46,12 @@ const StaffPriorityManagementScreen = ({ route, navigation }) => {
   );
 
   const handleConfirmPriority = async () => {
+    const validPriorities = ['Normal', 'Priority', 'Emergency'];
+    if (!selectedPriority || !validPriorities.includes(selectedPriority)) {
+      Alert.alert('Selection Required', 'Please select a valid priority category (Normal, Priority, or Emergency).');
+      return;
+    }
+
     if (selectedPriority === queueData.priority) {
       Alert.alert('Notice', 'Priority is already set to ' + selectedPriority);
       return;

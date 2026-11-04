@@ -51,6 +51,11 @@ const StaffCallNextPatientScreen = ({ navigation }) => {
   );
 
   const handleCallPatient = async () => {
+    if (!nextPatient || !nextPatient._id) {
+      showToast({ type: 'warning', title: 'No Patient', message: 'No waiting patient is available to be called.' });
+      return;
+    }
+
     try {
       setSubmitting(true);
       const response = await staffApi.callPatient(nextPatient._id);

@@ -44,6 +44,24 @@ const StaffConfirmArrivalScreen = ({ route, navigation }) => {
   useFocusEffect(useCallback(() => { fetchDetails(); }, [queueId]));
 
   const handleConfirmArrival = async () => {
+    if (queueData?.arrivalStatus === 'Arrived') {
+      showToast({
+        type: 'warning',
+        title: 'Already Confirmed',
+        message: 'This patient has already been confirmed as arrived.',
+      });
+      return;
+    }
+
+    if (queueData?.status === 'cancelled' || queueData?.status === 'completed') {
+      showToast({
+        type: 'error',
+        title: 'Invalid Action',
+        message: `Cannot confirm arrival for a ${queueData?.status} appointment.`,
+      });
+      return;
+    }
+
     try {
       setSubmitting(true);
       const response = await staffApi.confirmArrival(queueId);
