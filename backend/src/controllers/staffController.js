@@ -1,0 +1,419 @@
+const mongoose = require('mongoose');
+const Queue = require('../models/Queue');
+const Appointment = require('../models/Appointment');
+const StaffHandover = require('../models/StaffHandover');
+
+// Helper to get queue query for staff dashboard and queue list
+// Covers today's appointments (including completed) PLUS all active queue items (waiting/called/serving)
+const getStaffQueueQuery = async () => {
+  const localStart = new Date();
+  localStart.setHours(0, 0, 0, 0);
+  const localEnd = new Date();
+  localEnd.setHours(23, 59, 59, 999);
+
+  const utcStart = new Date();
+  utcStart.setUTCHours(0, 0, 0, 0);
+  const utcEnd = new Date();
+  utcEnd.setUTCHours(23, 59, 59, 999);
+
+  const minDate = new Date(Math.min(localStart.getTime(), utcStart.getTime()));
+  const maxDate = new Date(Math.max(localEnd.getTime(), utcEnd.getTime()));
+  
+  const todaysAppointments = await Appointment.find({
+    appointmentDate: { $gte: minDate, $lte: maxDate }
+  }).select('_id');
+  const todaysAppointmentIds = todaysAppointments.map(a => a._id);
+
+  return {
+    $or: [
+      { appointmentId: { $in: todaysAppointmentIds } },
+      { status: { $in: ['waiting', 'called', 'serving'] } }
+    ]
+  };
+};
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+exports.getDashboardStats = async (req, res) => {
+  try {
+    const query = await getStaffQueueQuery();
+
+    const totalPatients = await Queue.countDocuments(query);
+    const waitingPatients = await Queue.countDocuments({ ...query, status: 'waiting' });
+    const completedPatients = await Queue.countDocuments({ ...query, status: 'completed' });
+    const priorityPatients = await Queue.countDocuments({ ...query, priority: { $in: ['Priority', 'Emergency'] } });
+
+    const currentServing = await Queue.findOne({ ...query, status: 'called' }).sort({ calledTime: -1 });
+    
+    // Find next patient using priority weighting (Emergency > Priority > Normal) and arrival status
+    // Prefer Arrived patients; if none arrived, fall back to waiting patients
+    let waitingList = await Queue.find({ ...query, status: 'waiting', arrivalStatus: 'Arrived' });
+    if (waitingList.length === 0) {
+      waitingList = await Queue.find({ ...query, status: 'waiting' });
+    }
+
+    const getPriorityWeight = (p) => p === 'Emergency' ? 3 : p === 'Priority' ? 2 : 1;
+    waitingList.sort((a, b) => {
+      const wA = getPriorityWeight(a.priority);
+      const wB = getPriorityWeight(b.priority);
+      if (wA !== wB) return wB - wA;
+      return (a.queuePosition || 999) - (b.queuePosition || 999);
+    });
+
+    const nextPatient = waitingList.length > 0 ? waitingList[0] : null;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalPatients,
+        waitingPatients,
+        completedPatients,
+        priorityPatients,
+        currentlyServingToken: currentServing ? currentServing.tokenNumber : null,
+        nextToken: nextPatient ? nextPatient.tokenNumber : null
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+// ==========================================
+// QUEUE MANAGEMENT
+// ==========================================
+exports.getTodayQueue = async (req, res) => {
+  try {
+    const query = await getStaffQueueQuery();
+    const queue = await Queue.find(query)
+                             .populate('patientId', 'fullName')
+                             .sort({ queuePosition: 1 });
+    
+    res.status(200).json({ success: true, count: queue.length, data: queue });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getQueuePatient = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.queueId)) {
+      return res.status(400).json({ success: false, message: 'Invalid queue ID format' });
+    }
+
+    const queue = await Queue.findById(req.params.queueId).populate('patientId', 'fullName phone');
+    if (!queue) {
+      return res.status(404).json({ success: false, message: 'Queue record not found' });
+    }
+    const appointment = await Appointment.findById(queue.appointmentId).populate('opdId');
+    
+    res.status(200).json({ success: true, data: { queue, appointment } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.updateArrivalStatus = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.queueId)) {
+      return res.status(400).json({ success: false, message: 'Invalid queue ID format' });
+    }
+
+    const queue = await Queue.findById(req.params.queueId);
+    if (!queue) {
+      return res.status(404).json({ success: false, message: 'Queue record not found' });
+    }
+
+    if (queue.status === 'cancelled' || queue.status === 'completed') {
+      return res.status(400).json({ success: false, message: 'Cannot confirm arrival for cancelled or completed appointments' });
+    }
+
+    if (queue.arrivalStatus !== 'Arrived') {
+      queue.arrivalStatus = 'Arrived';
+      queue.arrivalTime = Date.now();
+      await queue.save();
+    }
+
+    res.status(200).json({ success: true, data: queue, message: 'Patient arrival confirmed' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.updatePriority = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.queueId)) {
+      return res.status(400).json({ success: false, message: 'Invalid queue ID format' });
+    }
+
+    const { priority } = req.body;
+    const validPriorities = ['Normal', 'Priority', 'Emergency'];
+    if (!priority || !validPriorities.includes(priority)) {
+      return res.status(400).json({ success: false, message: 'Priority must be one of: Normal, Priority, Emergency' });
+    }
+
+    const queue = await Queue.findById(req.params.queueId);
+    if (!queue) {
+      return res.status(404).json({ success: false, message: 'Queue record not found' });
+    }
+
+    queue.priority = priority;
+    await queue.save();
+
+    res.status(200).json({ success: true, data: queue, message: 'Priority updated successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getNextPatient = async (req, res) => {
+  try {
+    const query = await getStaffQueueQuery();
+    let waitingPatients = await Queue.find({ 
+      ...query,
+      status: 'waiting', 
+      arrivalStatus: 'Arrived' 
+    }).populate('patientId', 'fullName');
+    
+    // If no arrived patients, fall back to any waiting patients in queue
+    if (!waitingPatients || waitingPatients.length === 0) {
+      waitingPatients = await Queue.find({ 
+        ...query,
+        status: 'waiting' 
+      }).populate('patientId', 'fullName');
+    }
+
+    if (!waitingPatients || waitingPatients.length === 0) {
+      return res.status(200).json({ success: true, data: null, message: 'No waiting patients found' });
+    }
+
+    const getPriorityWeight = (priority) => {
+      if (priority === 'Emergency') return 3;
+      if (priority === 'Priority') return 2;
+      return 1;
+    };
+
+    waitingPatients.sort((a, b) => {
+      const weightA = getPriorityWeight(a.priority);
+      const weightB = getPriorityWeight(b.priority);
+      if (weightA !== weightB) return weightB - weightA;
+
+      return (a.queuePosition || 999) - (b.queuePosition || 999);
+    });
+
+    const nextPatient = waitingPatients[0];
+
+    res.status(200).json({ success: true, data: nextPatient });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.callPatient = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.queueId)) {
+      return res.status(400).json({ success: false, message: 'Invalid queue ID format' });
+    }
+
+    const queue = await Queue.findById(req.params.queueId);
+    if (!queue) {
+      return res.status(404).json({ success: false, message: 'Queue record not found' });
+    }
+    
+    if (queue.status === 'cancelled' || queue.status === 'completed') {
+      return res.status(400).json({ success: false, message: 'Cannot call cancelled or completed patients' });
+    }
+
+    if (queue.status !== 'waiting') {
+      return res.status(400).json({ success: false, message: 'Patient is not waiting' });
+    }
+
+    // 1. Mark this patient as called and arrived
+    queue.status = 'called';
+    queue.arrivalStatus = 'Arrived';
+    if (!queue.arrivalTime) {
+      queue.arrivalTime = Date.now();
+    }
+    queue.calledTime = Date.now();
+    queue.currentServingToken = queue.tokenNumber;
+    await queue.save();
+
+    // 2. Update currentServingToken across all active queue entries
+    await Queue.updateMany(
+      { status: { $in: ['waiting', 'called', 'serving'] } },
+      { $set: { currentServingToken: queue.tokenNumber } }
+    );
+
+    res.status(200).json({ success: true, data: queue, message: 'Patient called successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.getActivePatient = async (req, res) => {
+  try {
+    const activePatient = await Queue.findOne({ status: 'called' })
+                                     .sort({ calledTime: -1 })
+                                     .populate('patientId', 'fullName');
+    
+    res.status(200).json({ success: true, data: activePatient });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+// ==========================================
+// SHIFT HANDOVER
+// ==========================================
+exports.createHandover = async (req, res) => {
+  try {
+    const { shift, opd, currentToken, numberWaiting, numberPriority, notes } = req.body;
+
+    const validShifts = ['Morning', 'Evening', 'Night'];
+    if (!shift || !validShifts.includes(shift)) {
+      return res.status(400).json({ success: false, message: 'Shift is required and must be Morning, Evening, or Night' });
+    }
+
+    if (!opd || typeof opd !== 'string' || !opd.trim()) {
+      return res.status(400).json({ success: false, message: 'OPD / Department is required' });
+    }
+
+    if (!currentToken || typeof currentToken !== 'string' || !currentToken.trim()) {
+      return res.status(400).json({ success: false, message: 'Currently serving token is required' });
+    }
+
+    const waitingNum = Number(numberWaiting);
+    if (isNaN(waitingNum) || waitingNum < 0 || !Number.isInteger(waitingNum)) {
+      return res.status(400).json({ success: false, message: 'Patients waiting must be a non-negative whole number' });
+    }
+
+    const priorityNum = Number(numberPriority);
+    if (isNaN(priorityNum) || priorityNum < 0 || !Number.isInteger(priorityNum)) {
+      return res.status(400).json({ success: false, message: 'Priority waiting must be a non-negative whole number' });
+    }
+
+    if (priorityNum > waitingNum) {
+      return res.status(400).json({ success: false, message: 'Priority waiting cannot exceed total waiting patients' });
+    }
+
+    if (!notes || typeof notes !== 'string' || notes.trim().length < 3) {
+      return res.status(400).json({ success: false, message: 'Handover remarks/notes must be at least 3 characters long' });
+    }
+
+    const handoverData = {
+      shift,
+      opd: opd.trim(),
+      currentToken: currentToken.trim().toUpperCase(),
+      numberWaiting: waitingNum,
+      numberPriority: priorityNum,
+      notes: notes.trim(),
+      createdBy: req.user ? req.user.id : null
+    };
+
+    const handover = await StaffHandover.create(handoverData);
+    const populated = await StaffHandover.findById(handover._id).populate('createdBy', 'fullName role');
+
+    res.status(201).json({ success: true, data: populated || handover, message: 'Handover created' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getHandovers = async (req, res) => {
+  try {
+    const handovers = await StaffHandover.find().sort({ createdAt: -1 }).populate('createdBy', 'fullName role');
+    res.status(200).json({ success: true, data: handovers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.updateHandover = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid handover ID format' });
+    }
+
+    const { shift, opd, currentToken, numberWaiting, numberPriority, notes } = req.body;
+
+    const updates = {};
+
+    if (shift !== undefined) {
+      const validShifts = ['Morning', 'Evening', 'Night'];
+      if (!validShifts.includes(shift)) {
+        return res.status(400).json({ success: false, message: 'Shift must be Morning, Evening, or Night' });
+      }
+      updates.shift = shift;
+    }
+
+    if (opd !== undefined) {
+      if (typeof opd !== 'string' || !opd.trim()) {
+        return res.status(400).json({ success: false, message: 'OPD / Department cannot be empty' });
+      }
+      updates.opd = opd.trim();
+    }
+
+    if (currentToken !== undefined) {
+      if (typeof currentToken !== 'string' || !currentToken.trim()) {
+        return res.status(400).json({ success: false, message: 'Currently serving token cannot be empty' });
+      }
+      updates.currentToken = currentToken.trim().toUpperCase();
+    }
+
+    if (numberWaiting !== undefined) {
+      const waitingNum = Number(numberWaiting);
+      if (isNaN(waitingNum) || waitingNum < 0 || !Number.isInteger(waitingNum)) {
+        return res.status(400).json({ success: false, message: 'Patients waiting must be a non-negative whole number' });
+      }
+      updates.numberWaiting = waitingNum;
+    }
+
+    if (numberPriority !== undefined) {
+      const priorityNum = Number(numberPriority);
+      if (isNaN(priorityNum) || priorityNum < 0 || !Number.isInteger(priorityNum)) {
+        return res.status(400).json({ success: false, message: 'Priority waiting must be a non-negative whole number' });
+      }
+      updates.numberPriority = priorityNum;
+    }
+
+    if (updates.numberWaiting !== undefined && updates.numberPriority !== undefined) {
+      if (updates.numberPriority > updates.numberWaiting) {
+        return res.status(400).json({ success: false, message: 'Priority waiting cannot exceed total waiting patients' });
+      }
+    }
+
+    if (notes !== undefined) {
+      if (typeof notes !== 'string' || notes.trim().length < 3) {
+        return res.status(400).json({ success: false, message: 'Handover remarks/notes must be at least 3 characters long' });
+      }
+      updates.notes = notes.trim();
+    }
+
+    let handover = await StaffHandover.findById(req.params.id);
+    if (!handover) {
+      return res.status(404).json({ success: false, message: 'Handover not found' });
+    }
+
+    handover = await StaffHandover.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true }).populate('createdBy', 'fullName role');
+    res.status(200).json({ success: true, data: handover, message: 'Handover updated' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+exports.deleteHandover = async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid handover ID format' });
+    }
+
+    const handover = await StaffHandover.findByIdAndDelete(req.params.id);
+    if (!handover) {
+      return res.status(404).json({ success: false, message: 'Handover not found' });
+    }
+
+    res.status(200).json({ success: true, data: {}, message: 'Handover deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
